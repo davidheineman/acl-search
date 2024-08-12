@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACL Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <form id="searchForm">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <h1 class="mb-4">ACL Search</h1>
+                        <label for="yearRange" class="form-label range-label"><span id="yearRangeValue"></span></label>
+                        <input type="range" class="form-range" id="yearRange" min="2010" max="2024" step="1"
+                            value="2021">
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="main" id="main" checked>
+                            <label class="form-check-label" for="main">Main Long</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="short" id="short" checked>
+                            <label class="form-check-label" for="short">Main Short</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="findings" id="findings">
+                            <label class="form-check-label" for="findings">Findings</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="journal" id="journal">
+                            <label class="form-check-label" for="journal">Journal</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="workshop" id="workshop">
+                            <label class="form-check-label" for="workshop">Workshop</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="demo" id="demo">
+                            <label class="form-check-label" for="demo">Demo Track</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="industry" id="industry">
+                            <label class="form-check-label" for="industry">Industry Track</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="tutorial" id="tutorial">
+                            <label class="form-check-label" for="tutorial">Tutorial Abstracts</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="search-container">
+                        <input type="text" class="form-control" id="query" name="query" placeholder="Information is the resolution of uncertainty..." required>
+                        <button type="submit" class="btn btn-primary" form="searchForm">Search</button>
+                    </div>
+                    <div id="results" class="mt-4"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const yearRange = document.getElementById('yearRange');
+        const yearRangeValue = document.getElementById('yearRangeValue');
+
+        function updateYearRangeValue() {
+            const startYear = parseInt(yearRange.value);
+            const endYear = 2024;
+            yearRangeValue.textContent = `${startYear} - ${endYear}`;
+        }
+
+        yearRange.addEventListener('input', updateYearRangeValue);
+        updateYearRangeValue();  // Initial call to set the text
+
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+
+            const params = new URLSearchParams();
+            params.append('query', form.query.value);
+            params.append('start_year', yearRange.value);
+            params.append('end_year', '2024');
+
+            const selectedVenues = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            selectedVenues.forEach(venue => params.append('venue_type', venue));
+
+            try {
+                const response = await axios.get('http://localhost:8893/api/search', { params });
+                displayResults(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p class="alert alert-danger">An error occurred while fetching results.</p>';
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            if (data.length === 0) {
+                resultsDiv.innerHTML = '<p class="alert alert-info">No results found.</p>';
+                return;
+            }
+
+            console.log(data)
+
+            let html = '';
+            data.forEach(paper => {
+                html += `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
+                            <h6 class="card-subtitle mb-1 text-muted">${paper.authors}</h6>
+                            <p class="card-subtitle text-muted paper-metadata">
+                                <strong>${paper.year} / ${paper.venue_type}</strong> <br>
+                                ${paper.is_findings ? '<br><strong>Findings Paper</strong>' : ''}
+                            </p>
+                            <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

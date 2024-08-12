@@ -1,0 +1,7 @@
+__pycache__
+experiments
+.DS_Store
+app
+index
+*.json
+*.bib

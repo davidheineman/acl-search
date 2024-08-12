@@ -1,0 +1,7 @@
+torch==1.13.1
+colbert-ir[torch,faiss-cpu] # faiss-gpu
+faiss-cpu # shouldn't have to include
+bibtexparser
+mysql-connector-python
+flask
+gunicorn

@@ -1,0 +1,83 @@
+:root {
+    --custom-red: #ED1C24;
+    --custom-red-dark: #D11920;
+    --custom-blue: #446e9b;
+}
+.card {
+    margin-bottom: 20px;
+}
+.search-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+.search-container .form-control {
+    margin-right: 10px;
+}
+.btn-primary {
+    background-color: var(--custom-red);
+    border-color: var(--custom-red);
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--custom-red-dark);
+    border-color: var(--custom-red-dark);
+}
+/* Custom styling for range input */
+input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #b6b6b6;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--custom-red);
+    cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--custom-red);
+    cursor: pointer;
+}
+/* Custom styling for checkboxes */
+.form-check-input:checked {
+    background-color: var(--custom-red);
+    border-color: var(--custom-red);
+}
+.form-check-input:focus {
+    border-color: var(--custom-red);
+    box-shadow: 0 0 0 0.25rem rgba(237, 28, 36, 0.25);
+}
+/* Custom styling for links */
+a {
+    color: var(--custom-blue) !important;
+    text-decoration: none;
+}
+a:hover, a:focus {
+    color: #446e9b !important;
+    text-decoration: underline;
+}
+/* David custom */
+.card-text:last-child {
+    font-size: 11pt;
+    line-height: 1.05 !important;
+}
+.card {
+    background-color: #f8f9fa !important;
+    color: #212529
+}
+.card-body h6 {
+    font-size: 11pt;
+}
+.paper-metadata {
+    font-size: 10pt;
+}
+.range-label {
+    text-align: center
+}
