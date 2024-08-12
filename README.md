@@ -1,14 +1,16 @@
----
-license: apache-2.0
----
+## ACL Search
 
 Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/). (Parse any bibtex, and store in a MySQL service)
 
-# Setup
+<div align="center">
+    <img src="./src/static/demo.jpg" width="600" />
+</div>
 
-## Setup ColBERT
+## Setup
+
+**Setup ColBERT**
 ```sh
-git clone https://huggingface.co/davidheineman/colbert-acl
+git clone https://github.com/davidheineman/acl-search
 
 # install dependencies
 # torch==1.13.1 required (conda install -y -n [env] python=3.10)
@@ -16,9 +18,9 @@ pip install -r requirements.txt
 brew install mysql
 ```
 
-### (Optional) Parse & Index the Anthology
+**(Optional) Parse & Index the Anthology**
 
-Feel free to skip, since the parsed/indexed anthology is contained in this repo. 
+Feel free to skip, since the parsed/indexed anthology can be downloaded above. To see the compiled index, please visit [huggingface.co/davidheineman/colbert-acl](https://huggingface.co/davidheineman/colbert-acl) 
 
 ```sh
 # get up-to-date abstracts in bibtex
@@ -34,7 +36,7 @@ python parse.py
 python index.py
 ```
 
-### Search with ColBERT
+**Search with ColBERT**
 
 ```sh
 # start flask server
@@ -53,7 +55,7 @@ or for an interface:
 http://localhost:8893
 ```
 
-### Deploy as a Docker App
+**Deploy as a Docker App**
 ```sh
 docker-compose build --no-cache
 docker-compose up --build
