@@ -8,8 +8,9 @@ from constants import INDEX_PATH, VENUES
 
 from search import init_colbert, search_colbert
 from db import create_database, query_paper_metadata
+from utils import download_index_from_hf
 
-PORT = int(os.getenv("PORT", 8893))
+PORT = int(os.getenv("PORT", 8080))
 app = Flask(__name__)
 
 
@@ -98,9 +99,10 @@ if __name__ == "__main__":
     """
     Example usage:
     python server.py
-    http://localhost:8893/api/colbert?query=Information retrevial with BERT
-    http://localhost:8893/api/search?query=Information retrevial with BERT
+    http://localhost:8080/api/colbert?query=Information retrevial with BERT
+    http://localhost:8080/api/search?query=Information retrevial with BERT
     """
+    download_index_from_hf()
     create_database()
     init_colbert(index_path=INDEX_PATH)
     app.run("0.0.0.0", PORT) # debug=True

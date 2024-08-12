@@ -9,6 +9,8 @@ from colbert.search.strided_tensor import StridedTensor
 from colbert.indexing.codecs.residual_embeddings_strided import ResidualEmbeddingsStrided
 from colbert.indexing.codecs.residual import ResidualCodec
 
+from constants import INDEX_PATH
+
 
 NCELLS = 1  # Number of centroids to use in PLAID
 CENTROID_SCORE_THRESHOLD = 0.5 # How close a document has to be to a centroid to be considered
@@ -202,3 +204,8 @@ def search_colbert(query):
     pids, scores = pids[scores_sorter.indices].tolist(), scores_sorter.values.tolist()
 
     return pids, scores
+
+
+if __name__ == "__main__":
+    # Text-run ColBERT (useful for docker to download the model)
+    init_colbert(index_path=INDEX_PATH)

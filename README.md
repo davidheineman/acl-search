@@ -18,9 +18,26 @@ pip install -r requirements.txt
 brew install mysql
 ```
 
+**Search with ColBERT**
+
+```sh
+# start flask server
+python server.py
+
+# or start a production API endpoint
+gunicorn -w 4 -b 0.0.0.0:8080 server:app
+
+# Then visit:
+# http://localhost:8080
+# or use the API:
+# http://localhost:8080/api/search?query=Information retrevial with BERT
+```
+
 **(Optional) Parse & Index the Anthology**
 
-Feel free to skip, since the parsed/indexed anthology can be downloaded above. To see the compiled index, please visit [huggingface.co/davidheineman/colbert-acl](https://huggingface.co/davidheineman/colbert-acl) 
+This step allows indexing the anthology manually. This can be skipped, since the parsed/indexed anthology will be downloaded from [huggingface.co/davidheineman/colbert-acl](https://huggingface.co/davidheineman/colbert-acl).
+
+*You can also include you own papers by adding to the `anthology.bib` file!*
 
 ```sh
 # get up-to-date abstracts in bibtex
@@ -34,25 +51,6 @@ python parse.py
 # index with ColBERT 
 # (note sometimes there is a silent failure if the CPP extensions do not exist)
 python index.py
-```
-
-**Search with ColBERT**
-
-```sh
-# start flask server
-python server.py
-
-# or start a production API endpoint
-gunicorn -w 4 -b 0.0.0.0:8893 server:app
-```
-
-Then, to test, visit:
-```
-http://localhost:8893/api/search?query=Information retrevial with BERT
-```
-or for an interface:
-```
-http://localhost:8893
 ```
 
 **Deploy as a Docker App**
@@ -96,12 +94,6 @@ To see an example of search, visit:
 
     - Put query in URL (?q=XXX)
 
-    - Move code to github and index to hf, then use this to download the index:
-        from huggingface_hub import snapshot_download
-
-        # Download indexed repo at: https://huggingface.co/davidheineman/colbert-acl
-        !mkdir "acl"
-        index_name = snapshot_download(repo_id="davidheineman/colbert-acl", local_dir="acl")
     - Make indexing much easier 
         (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
         - Make index save in parent folder

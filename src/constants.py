@@ -1,6 +1,8 @@
 import os
 from typing import Literal
 
+HF_INDEX_REPO = "davidheineman/colbert-acl"
+
 INDEX_NAME = os.getenv("INDEX_NAME", 'index')
 INDEX_ROOT = os.getenv("INDEX_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
