@@ -57,6 +57,7 @@ python index.py
 ```sh
 docker-compose build --no-cache
 docker-compose up --build
+# docker pull ghcr.io/davidheineman/acl-search:main
 ```
 
 ## Example notebooks
@@ -84,7 +85,8 @@ To see an example of search, visit:
 
     - Include the title in the indexing
     
-    - (First seperate github and HF, then deploy as a container app)
+    - Build using GitHub Actions, then deploy the built container on Google Cloud
+    - This way, I can trigger builds directly in GitHub
     - Deploy: https://console.cloud.google.com/run/create?enableapi=true&hl=en&project=light-lambda-256623
     - https://docs.docker.com/language/python/configure-ci-cd/
 
@@ -94,12 +96,12 @@ To see an example of search, visit:
 
     - Put query in URL (?q=XXX)
 
-    - Make indexing much easier 
+    - Make indexing code better 
         (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
         - Make index save in parent folder
         - Fix "sanity check" in index.py
+        - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
     - Profile bibtexparser.load(f) (why so slow)
-    - Ship as a containerized service
     - Scrape: 
         - https://proceedings.neurips.cc/
         - https://dblp.uni-trier.de/db/conf/iclr/index.html

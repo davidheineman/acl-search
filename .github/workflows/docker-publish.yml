@@ -1,13 +1,10 @@
 name: Docker
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Deploy to ghcr.io/davidheineman/acl-search:main
 
 on:
   schedule:
-    - cron: '41 6 * * *'
+    - cron: '20 4 * * 0' # Build once a week
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
@@ -16,15 +13,12 @@ on:
     branches: [ "main" ]
 
 env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: ghcr.io # or docker.io
+  IMAGE_NAME: ${{ github.repository }} # davidheineman/acl-search
 
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
