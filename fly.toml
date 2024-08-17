@@ -1,7 +1,4 @@
-# fly.toml app configuration file generated for acl-search on 2024-08-16T21:28:04-07:00
-#
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
 
 app = 'acl-search'
 primary_region = 'lax'
@@ -11,9 +8,9 @@ primary_region = 'lax'
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = 'stop'
-  auto_start_machines = true
-  min_machines_running = 0
+  auto_stop_machines = 'stop'  # off, stop, suspend
+  auto_start_machines = false # autoscaling
+  min_machines_running = 1
   processes = ['app']
 
 [[vm]]

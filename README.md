@@ -79,6 +79,8 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
+        - Add a loading spinner
+        - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
         - Colors: make the colors resemble the ACL page much closer
             - There's still a bunch of blue from the bootstrap themeing
         - Smaller line spacing for abstract text
@@ -90,35 +92,23 @@ To see an example of search, visit:
         - If the user selects certain venues, remember these venues
         - Add a dropdown under the "Workshop" box to select specific workshops
 
-    - Include the title in the indexing
+    - On search quality
+        - Scrape: 
+            - https://proceedings.neurips.cc/
+            - https://dblp.uni-trier.de/db/conf/iclr/index.html
+            - openreview
+        - Include the title in the indexing
+        - Have articles before 2020
+        - Put query in URL (?q=XXX)
 
-    - Use SQLite (or pocketbase) instead of MySQL, so you only have a single docker container
-    
-    - Build using GitHub Actions, then deploy the built container on Google Cloud
-    - This way, I can trigger builds directly in GitHub
-    - Deploy: https://console.cloud.google.com/run/create?enableapi=true&hl=en&project=light-lambda-256623
-    - https://docs.docker.com/language/python/configure-ci-cd/
-    - try `fly launch`?
+    - On deployment
+        - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)
 
-    - I learned github actions are great, but you need to deploy to the container registry
-        of the cloud repo you are deploying the container service from (i.e., not the 
-        github registry). Also, I'm using docker compose, which makes it more complicated
-        - https://stackoverflow.com/questions/67023441/deploy-docker-container-with-compose-github-actions
-
-    - Have articles before 2020
-
-    - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
-
-    - Put query in URL (?q=XXX)
-
-    - Make indexing code better 
-        (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
-        - Make index save in parent folder
-        - Fix "sanity check" in index.py
-        - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
-    - Profile bibtexparser.load(f) (why so slow)
-    - Scrape: 
-        - https://proceedings.neurips.cc/
-        - https://dblp.uni-trier.de/db/conf/iclr/index.html
-        - openreview
+    - On indexing
+        - Make indexing code better 
+            (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
+            - Make index save in parent folder
+            - Fix "sanity check" in index.py
+            - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
+        - Profile bibtexparser.load(f) (why so slow)
  -->
