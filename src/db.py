@@ -1,8 +1,8 @@
 import json
 from typing import List, Optional, Union
 
-import mysql.connector
-from constants import DATASET_PATH, DB_HOSTNAME, DB_NAME, DB_PORT, VENUES
+import sqlite3
+from constants import DATASET_PATH, DB_FILENAME, DB_NAME, VENUES
 
 PAPER_QUERY = """
 SELECT * 
@@ -19,26 +19,10 @@ def read_dataset():
 
 
 def create_database():
-    db = mysql.connector.connect(
-        host = DB_HOSTNAME,
-        user = "root",
-        password = "",
-        port = DB_PORT
+    db: sqlite3.Connection = sqlite3.connect(
+        database = DB_FILENAME
     )
     cursor = db.cursor()
-
-    cursor.execute("SHOW DATABASES")
-    db_exists = False
-    for x in cursor:
-        db_name = x[0]
-        if db_name == DB_NAME:
-            db_exists = True
-
-    # Create database
-    if not db_exists:
-        print("Creating new database...")
-        cursor.execute(f'CREATE DATABASE {DB_NAME}')
-    cursor.execute(f'USE {DB_NAME}')
 
     # Create table
     print('Creating new table...')
@@ -61,6 +45,7 @@ def create_database():
     acl_data = read_dataset()
 
     vals = []
+    paper: dict
     for pid, paper in enumerate(acl_data):
         title    = paper.get('title', '')
         author   = paper.get('author', '')
@@ -80,7 +65,7 @@ def create_database():
     INSERT INTO paper (
         pid, title, author, year, abstract, url, type, venue, venue_type, is_findings
     ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )
     """
 
@@ -123,17 +108,13 @@ def query_paper_metadata(
     ):
     if not isinstance(venue_type, list): venue_type = [venue_type]
     
-    db = mysql.connector.connect(
-        host = DB_HOSTNAME,
-        user = "root",
-        password = "",
-        database = DB_NAME,
-        port = DB_PORT
+    db: sqlite3.Connection = sqlite3.connect(
+        database = DB_FILENAME
     )
 
     cursor = db.cursor()
 
-    pids_str = ', '.join(['%s'] * len(pids))
+    pids_str = ', '.join(['?'] * len(pids))
 
     constraints_str = ""
     if start_year: constraints_str += f" AND year >= {start_year}"

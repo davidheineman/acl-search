@@ -6,3 +6,4 @@ index
 *.json
 *.bib
 main.yml
+anthology.db

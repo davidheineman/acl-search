@@ -69,9 +69,9 @@ def query():
     # Get top passage IDs from ColBERT
     colbert_response = api_search_query(query)
 
-    # Query MySQL database for paper information
+    # Query database for paper information
     pids = [r['pid'] for r in colbert_response["topk"]]
-    mysql_response = query_paper_metadata(
+    server_response = query_paper_metadata(
         pids, 
         start_year=start_year,
         end_year=end_year,
@@ -80,9 +80,9 @@ def query():
     )
 
     K = 20
-    mysql_response = mysql_response[:K]
+    server_response = server_response[:K]
 
-    return mysql_response
+    return server_response
 
 
 # @app.route('/search', methods=['POST', 'GET'])

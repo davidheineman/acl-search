@@ -3,6 +3,6 @@ colbert-ir[torch,faiss-cpu] # faiss-gpu
 faiss-cpu
 huggingface_hub
 bibtexparser
-mysql-connector-python
+pysqlite3
 flask
 gunicorn

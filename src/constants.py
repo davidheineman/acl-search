@@ -11,7 +11,6 @@ ANTHOLOGY_PATH = os.path.join(INDEX_ROOT, 'anthology.bib')
 DATASET_PATH = os.path.join(INDEX_ROOT, 'dataset.json')
 
 DB_NAME = 'anthology'
-DB_HOSTNAME = 'mysql_db' # localhost
-DB_PORT = 3306 # None
+DB_FILENAME = 'anthology.db'
 
 VENUES = Literal['workshop', 'journal', 'short', 'demo', 'tutorial', 'industry', 'findings', 'main']
