@@ -2,7 +2,7 @@ import json
 from typing import List, Optional, Union
 
 import sqlite3
-from constants import DATASET_PATH, DB_FILENAME, DB_NAME, VENUES
+from constants import DATASET_PATH, DB_FILENAME, VENUES
 
 PAPER_QUERY = """
 SELECT * 
