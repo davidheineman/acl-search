@@ -95,7 +95,7 @@
             selectedVenues.forEach(venue => params.append('venue_type', venue));
 
             try {
-                const response = await axios.get('http://localhost:8080/api/search', { params });
+                const response = await axios.get('/api/search', { params });
                 displayResults(response.data);
             } catch (error) {
                 console.error('Error:', error);
