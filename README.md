@@ -13,9 +13,8 @@ Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/
 git clone https://github.com/davidheineman/acl-search
 
 # install dependencies
-# torch==1.13.1 required (conda install -y -n [env] python=3.10)
+# conda install -y -n aclsearch python=3.10 # (torch==1.13.1 required)
 pip install -r requirements.txt
-brew install mysql
 ```
 
 **Search with ColBERT**
@@ -55,9 +54,17 @@ python index.py
 
 **Deploy as a Docker App**
 ```sh
-docker-compose build --no-cache
-docker-compose up --build
-# docker pull ghcr.io/davidheineman/acl-search:main
+# Build and run locally
+docker build . -t acl-search:main
+docker run -p 8080:8080 acl-search:main
+
+# Or pull the hosted container
+docker pull ghcr.io/davidheineman/acl-search:main # add for macos: --platform linux/amd64 
+docker run -p 8080:8080 ghcr.io/davidheineman/acl-search:main
+
+# Lauch it as a web service!
+brew install flyctl
+fly launch
 ```
 
 ## Example notebooks
@@ -84,11 +91,19 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - Include the title in the indexing
+
+    - Use SQLite (or pocketbase) instead of MySQL, so you only have a single docker container
     
     - Build using GitHub Actions, then deploy the built container on Google Cloud
     - This way, I can trigger builds directly in GitHub
     - Deploy: https://console.cloud.google.com/run/create?enableapi=true&hl=en&project=light-lambda-256623
     - https://docs.docker.com/language/python/configure-ci-cd/
+    - try `fly launch`?
+
+    - I learned github actions are great, but you need to deploy to the container registry
+        of the cloud repo you are deploying the container service from (i.e., not the 
+        github registry). Also, I'm using docker compose, which makes it more complicated
+        - https://stackoverflow.com/questions/67023441/deploy-docker-container-with-compose-github-actions
 
     - Have articles before 2020
 
