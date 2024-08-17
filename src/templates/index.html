@@ -5,16 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACL Search</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="container">
         <form id="searchForm">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-3 sidebar">
                     <div class="mb-3">
                         <h1 class="mb-4">ACL Search</h1>
                         <label for="yearRange" class="form-label range-label"><span id="yearRangeValue"></span></label>
@@ -56,13 +57,21 @@
                             <label class="form-check-label" for="tutorial">Tutorial Abstracts</label>
                         </div>
                     </div>
+
+                    <div class="mb-3 text-footer small footer">by <a class="text-footer-a"
+                            href="https://davidheineman.com">david</a> (<a class="text-footer-a"
+                            href="https://github.com/davidheineman/acl-search">source</a>)</div>
                 </div>
-                <div class="col-md-9">
-                    <div class="search-container">
-                        <input type="text" class="form-control" id="query" name="query" placeholder="Information is the resolution of uncertainty..." required>
+                <div class="col-md-9 search-container">
+                    <div class="search-bar-container">
+                        <input type="text" class="form-control" id="query" name="query"
+                            placeholder="Information is the resolution of uncertainty..." required>
                         <button type="submit" class="btn btn-primary" form="searchForm">Search</button>
                     </div>
-                    <div id="results" class="mt-4"></div>
+                    <div id="spinner" class="spinner-border" style="display: none" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                    <div id="results" class="results"></div>
                 </div>
             </div>
         </form>
@@ -81,27 +90,6 @@
         yearRange.addEventListener('input', updateYearRangeValue);
         updateYearRangeValue();  // Initial call to set the text
 
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-
-            const params = new URLSearchParams();
-            params.append('query', form.query.value);
-            params.append('start_year', yearRange.value);
-            params.append('end_year', '2024');
-
-            const selectedVenues = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                .map(checkbox => checkbox.value);
-            selectedVenues.forEach(venue => params.append('venue_type', venue));
-
-            try {
-                const response = await axios.get('/api/search', { params });
-                displayResults(response.data);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('results').innerHTML = '<p class="alert alert-danger">An error occurred while fetching results.</p>';
-            }
-        });
 
         function displayResults(data) {
             const resultsDiv = document.getElementById('results');
@@ -131,6 +119,49 @@
 
             resultsDiv.innerHTML = html;
         }
+
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+
+            const params = new URLSearchParams();
+            params.append('query', form.query.value);
+            params.append('start_year', yearRange.value);
+            params.append('end_year', '2024');
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('q', form.query.value);
+            window.history.pushState({}, '', url);
+
+            const selectedVenues = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            selectedVenues.forEach(venue => params.append('venue_type', venue));
+
+            const spinner = document.getElementById('spinner');
+            spinner.style.display = 'block';
+
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                const response = await axios.get('/api/search', { params });
+                displayResults(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p class="alert alert-danger">An error occurred while fetching results.</p>';
+            } finally {
+                spinner.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+
+            if (query) {
+                document.getElementById('query').value = query;
+                // submitForm(query);
+            }
+        });
     </script>
 </body>
 

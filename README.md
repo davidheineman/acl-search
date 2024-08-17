@@ -77,9 +77,14 @@ To see an example of search, visit:
     - https://github.com/stanford-futuredata/ColBERT/blob/main/colbert/index_updater.py
     - https://github.com/stanford-futuredata/ColBERT/issues/111
 
+- To generate favicon:
+    cd src/static
+    inkscape favicon.svg --export-type=png --export-background-opacity=0 --export-filename=favicon.png
+    convert favicon.png -resize 256x256 favicon.ico
+    rm favicon.png
+
 - TODO:
     - On UI
-        - Add a loading spinner
         - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
         - Colors: make the colors resemble the ACL page much closer
             - There's still a bunch of blue from the bootstrap themeing
@@ -87,7 +92,6 @@ To see an example of search, visit:
         - Add "PDF" button
         - Justify the result metadata (Year, venue, etc.) so the content all starts at the same vertical position
         - Add a "Expand" button at the end of the abstract
-        - Make the results scrollable, without scrolling the rest of the page
         - Put two sliders on the year range (and make the years selectable, with the years at both ends of the bar)
         - If the user selects certain venues, remember these venues
         - Add a dropdown under the "Workshop" box to select specific workshops
@@ -101,9 +105,6 @@ To see an example of search, visit:
         - Have articles before 2020
         - Put query in URL (?q=XXX)
 
-    - On deployment
-        - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)
-
     - On indexing
         - Make indexing code better 
             (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
@@ -111,4 +112,7 @@ To see an example of search, visit:
             - Fix "sanity check" in index.py
             - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
         - Profile bibtexparser.load(f) (why so slow)
+
+    - On deployment
+        - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)
  -->
