@@ -39,7 +39,10 @@ This step allows indexing the anthology manually. This can be skipped, since the
 *You can also include you own papers by adding to the `anthology.bib` file!*
 
 ```sh
-# get up-to-date abstracts in bibtex
+# pull from openreview
+python openrev.py
+
+# get the acl anthology
 curl -O https://aclanthology.org/anthology+abstracts.bib.gz
 gunzip anthology+abstracts.bib.gz
 mv anthology+abstracts.bib anthology.bib

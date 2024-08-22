@@ -1,8 +1,14 @@
+# colbert
 torch==1.13.1
 colbert-ir[torch,faiss-cpu]==0.2.14 # faiss-gpu
 faiss-cpu
 huggingface_hub
-bibtexparser
+
+# db / server
 pysqlite3
 flask
 gunicorn
+
+# scraping
+openreview-py
+bibtexparser
