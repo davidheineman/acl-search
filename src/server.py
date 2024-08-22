@@ -6,7 +6,7 @@ from functools import lru_cache
 
 from constants import INDEX_PATH, VENUES
 
-from search import init_colbert, search_colbert
+from search import ColBERT
 from db import create_database, query_paper_metadata
 from utils import download_index_from_hf
 
@@ -19,7 +19,7 @@ def api_search_query(query):
     print(f"Query={query}")
 
     # Use ColBERT to find passages related to the query
-    pids, scores = search_colbert(query)
+    pids, scores = colbert.search(query)
 
     # Softmax output probs
     probs = [math.exp(s) for s in scores]
@@ -104,5 +104,8 @@ if __name__ == "__main__":
     """
     download_index_from_hf()
     create_database()
-    init_colbert(index_path=INDEX_PATH)
+    global colbert
+    colbert = ColBERT(index_path=INDEX_PATH)
+    print(colbert.search('text simplificaiton'))
+    print(api_search_query("text simplification")['topk'][:5])
     app.run("0.0.0.0", PORT) # debug=True

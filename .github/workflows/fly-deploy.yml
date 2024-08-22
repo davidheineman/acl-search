@@ -2,6 +2,8 @@
 
 name: Fly
 on:
+  schedule:
+    - cron: '20 4 * * 0' # Build once a week
   push:
     branches:
       - main

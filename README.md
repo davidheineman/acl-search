@@ -1,6 +1,6 @@
 ## ACL Search
 
-Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/). (Parse any bibtex, and store in a MySQL service)
+Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/) (or any .bib file!).
 
 <div align="center">
     <img src="./src/static/demo.jpg" width="600" />
@@ -85,6 +85,7 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
+        - Single click "copy" for full bibtex, and bib key!
         - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
         - Colors: make the colors resemble the ACL page much closer
             - There's still a bunch of blue from the bootstrap themeing
@@ -99,8 +100,11 @@ To see an example of search, visit:
     - On search quality
         - Scrape: 
             - https://proceedings.neurips.cc/
-            - https://dblp.uni-trier.de/db/conf/iclr/index.html
+            - https://dblp.org/db/conf/iclr/index.html
+            - https://dblp.org/db/conf/nips/index.html
             - openreview
+                - https://github.com/pranftw/openreview_scraper
+                - https://github.com/sebastianGehrmann/dblp-pub
         - Include the title in the indexing
         - Have articles before 2020
         - Put query in URL (?q=XXX)
@@ -112,6 +116,7 @@ To see an example of search, visit:
             - Fix "sanity check" in index.py
             - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
         - Profile bibtexparser.load(f) (why so slow)
+        - Make this a GitHub action
 
     - On deployment
         - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)
