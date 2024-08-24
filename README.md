@@ -91,6 +91,12 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
+        - Add separate selector for NLP venues and ML venues
+        - Return specific venue name
+        - Store / return author names as a list
+        - Show bibkey and bibtex in UI
+        - Seperate URL/PDF/ABS buttons (show titles only)
+
         - Single click "copy" for full bibtex, and bib key!
         - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
         - Colors: make the colors resemble the ACL page much closer
@@ -104,20 +110,14 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
-        - Use https://aclanthology.org/info/development/
-        - Add openreview scrape
         - Include the title in the indexing
-        - Have articles before 2020
-        - Put query in URL (?q=XXX)
 
     - On indexing
         - Make indexing code better 
             (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
-            - Make index save in parent folder
             - Fix "sanity check" in index.py
-            - Make it possible to do a one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
-        - Profile bibtexparser.load(f) (why so slow)
-        - Make this a GitHub action
+            - Investigate why it's so slow (~8 hours for 70K papers. I think faiss is the culprit)
+        - Make this one-click re-indexing as a GitHub action (potentially when building the container? Or re-build the container when HF is updated)
 
     - On deployment
         - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)

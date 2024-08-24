@@ -106,9 +106,9 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
-                            <h6 class="card-subtitle mb-1 text-muted">${paper.authors}</h6>
+                            <h6 class="card-subtitle mb-1 text-muted">${paper.author}</h6>
                             <p class="card-subtitle text-muted paper-metadata">
-                                <strong>${paper.year} / ${paper.venue_type}</strong> <br>
+                                <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
                                 ${paper.is_findings ? '<br><strong>Findings Paper</strong>' : ''}
                             </p>
                             <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>

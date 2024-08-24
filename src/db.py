@@ -26,12 +26,16 @@ def create_database():
     CREATE TABLE paper (
         pid INT PRIMARY KEY, 
         title VARCHAR(1024), 
-        author VARCHAR(2170), 
-        year INT, 
         abstract TEXT(12800), 
+        year INT, 
         url VARCHAR(150), 
-        type VARCHAR(100), 
+        pdf VARCHAR(150), 
+        author VARCHAR(2170), 
         venue VARCHAR(500), 
+        venueid VARCHAR(500), 
+        bibtex TEXT(12800), 
+        bibkey VARCHAR(100), 
+        invitation VARCHAR(100), 
         venue_type VARCHAR(150),
         is_findings TINYINT(1) NOT NULL DEFAULT 0
     )
@@ -42,25 +46,32 @@ def create_database():
     vals = []
     paper: dict
     for pid, paper in enumerate(acl_data):
-        title    = paper.get('title', '')
-        author   = paper.get('author', '')
-        year     = paper.get('year', '')
-        abstract = paper.get('abstract', '')
-        url      = paper.get('url', '')
-        type     = paper.get('ENTRYTYPE', '')
-        venue    = paper.get('booktitle', '')
+        title       = paper.get('title', '')
+        abstract    = paper.get('abstract', '')
+        year        = paper.get('year', '')
+        url         = paper.get('url', '')
+        pdf         = paper.get('pdf', '')
+        author      = paper.get('authors', '')
+        venue       = paper.get('venue', '')
+        venueid     = paper.get('venueid', '')
+        bibtex      = paper.get('_bibtex', '')
+        bibkey      = paper.get('_bibkey', '')
+        invitation  = paper.get('invitation', '')
         venue_type  = paper.get('venue_type', '')
-        is_findings = paper.get('is_findings', '0')
+        is_findings = paper.get('findings', '0')
+
+        is_findings = is_findings if is_findings is not None else 0
+        author = str(author)
 
         if not abstract: continue
 
-        vals += [(pid, title, author, year, abstract, url, type, venue, venue_type, is_findings)]
+        vals += [(pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings)]
 
     sql = """
     INSERT INTO paper (
-        pid, title, author, year, abstract, url, type, venue, venue_type, is_findings
+        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings
     ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )
     """
 
@@ -73,22 +84,26 @@ def parse_results(results):
     parsed_results = {}
 
     for result in results:
-        pid, title, authors, year, abstract, url, type, venue, venue_type, is_findings = result
+        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings = result
 
         title    = title.replace("{", "").replace("}", "")
-        authors  = authors.replace("{", "").replace("}", "").replace('\\"', "")
+        author  = author.replace("{", "").replace("}", "").replace('\\"', "")
         abstract = abstract.replace("{", "").replace("}", "").replace("\\", "")
 
         parsed_results[int(pid)] = {
             'title': title, 
-            'authors': authors, 
+            'abstract': abstract, 
             'year': year, 
-            'abstract': abstract,
-            'url': url,
-            'type': type,
-            'venue': venue,
-            'venue_type': venue_type,
-            'is_findings': is_findings,
+            'url': url, 
+            'pdf': pdf, 
+            'author': author, 
+            'venue': venue, 
+            'venueid': venueid, 
+            'bibtex': bibtex, 
+            'bibkey': bibkey, 
+            'invitation': invitation, 
+            'venue_type': venue_type, 
+            'is_findings': is_findings
         }
 
     return parsed_results
