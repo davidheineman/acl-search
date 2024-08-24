@@ -10,10 +10,10 @@ INDEX_PATH = os.path.join(INDEX_ROOT, INDEX_NAME)
 DATA_PATH  = os.path.join(INDEX_ROOT, 'data')
 
 ANTHOLOGY_BIB_PATH = os.path.join(DATA_PATH, 'anthology.bib')
-ANTHOLOGY_PATH = os.path.join(DATA_PATH, 'anthology.json')
+ANTHOLOGY_PATH  = os.path.join(DATA_PATH, 'anthology.json')
 OPENREVIEW_PATH = os.path.join(DATA_PATH, 'openreview.json')
-DATASET_PATH = os.path.join(DATA_PATH, 'papers.json')
 
-DB_FILENAME = os.path.join(DATA_PATH, 'papers.db')
+DATASET_PATH    = os.path.join(DATA_PATH, 'papers.json')
+DB_FILENAME     = os.path.join(DATA_PATH, 'papers.db')
 
 VENUES = Literal['workshop', 'journal', 'short', 'demo', 'tutorial', 'industry', 'findings', 'main']

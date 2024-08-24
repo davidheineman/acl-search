@@ -65,7 +65,7 @@ docker build . -t acl-search:main
 docker run -p 8080:8080 acl-search:main
 
 # Or pull the hosted container
-docker pull ghcr.io/davidheineman/acl-search:main # add for macos: --platform linux/amd64 
+docker pull ghcr.io/davidheineman/acl-search:main # add for macos: --platform linux/arm64 
 docker run -p 8080:8080 ghcr.io/davidheineman/acl-search:main
 
 # Lauch it as a web service!

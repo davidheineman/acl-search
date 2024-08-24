@@ -4,11 +4,6 @@ from typing import List, Optional, Union
 import sqlite3
 from constants import DATASET_PATH, DB_FILENAME, VENUES
 
-PAPER_QUERY = """
-SELECT * 
-FROM paper 
-WHERE pid IN ({query_arg_str}){constraints_str};
-"""
 
 def read_dataset():
     print("Reading dataset...")
@@ -106,6 +101,12 @@ def query_paper_metadata(
         venue_type: Union[VENUES, List[VENUES]] = None, 
         is_findings: Optional[bool] = None
     ):
+    PAPER_QUERY = """
+    SELECT * 
+    FROM paper 
+    WHERE pid IN ({query_arg_str}){constraints_str};
+    """
+
     if not isinstance(venue_type, list): venue_type = [venue_type]
     
     db: sqlite3.Connection = sqlite3.connect(

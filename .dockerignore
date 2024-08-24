@@ -5,8 +5,8 @@ app
 index
 *.json
 *.bib
+*.db
 main.yml
-papers.db
 UltraFastBERT
 .openreview
 anthology

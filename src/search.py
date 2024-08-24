@@ -2,6 +2,8 @@ import os, ujson, tqdm
 import torch as th
 import torch.nn.functional as F
 
+from utils import download_index_from_hf
+
 from colbert.infra.config import ColBERTConfig
 from colbert.search.index_storage import IndexScorer
 from colbert.search.strided_tensor import StridedTensor
@@ -265,5 +267,6 @@ class ColBERT():
 
 if __name__ == "__main__":
     # Test-run ColBERT (useful for docker to download the model)
+    download_index_from_hf()
     colbert = ColBERT(index_path=INDEX_PATH)
     print(colbert.search('text simplificaiton'))

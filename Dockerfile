@@ -7,21 +7,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Download index and dataset from HF
-RUN apt-get update && apt-get install -y git-lfs
-RUN git lfs install
-RUN git clone https://huggingface.co/davidheineman/colbert-acl /tmp/colbert-acl
-RUN git -C /tmp/colbert-acl lfs pull
-RUN cp -r /tmp/colbert-acl/* /tmp/colbert-acl/.[!.]* .
-RUN rm -rf /tmp/colbert-acl
-
 # Copy ColBERT files that aren't downloaded properly
 COPY ./src/extras/segmented_maxsim.cpp /usr/local/lib/python3.10/site-packages/colbert/modeling/segmented_maxsim.cpp
 COPY ./src/extras/decompress_residuals.cpp /usr/local/lib/python3.10/site-packages/colbert/search/decompress_residuals.cpp
 COPY ./src/extras/filter_pids.cpp /usr/local/lib/python3.10/site-packages/colbert/search/filter_pids.cpp
 COPY ./src/extras/segmented_lookup.cpp /usr/local/lib/python3.10/site-packages/colbert/search/segmented_lookup.cpp
 
-# Download the ColBERT model
+# Test run the ColBERT model (and download the index from HF)
 RUN python src/search.py
 
 # CMD ["sh", "-c", "sleep infinity"]
