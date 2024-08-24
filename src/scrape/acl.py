@@ -3,6 +3,12 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(CURRENT_DIR))
 sys.path.append(CURRENT_DIR)
 
+import locale
+
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+os.environ['LANG'] = 'en_US.UTF-8'
+os.environ['LC_ALL'] = 'en_US.UTF-8'
+
 import json
 from tqdm import tqdm
 
@@ -51,6 +57,7 @@ def preprocess_acl(anthology_path):
 
         dataset += [formatted_entry]
 
+    os.makedirs(os.path.dirname(anthology_path), exist_ok=True)
     with open(anthology_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(dataset, indent=4))
 

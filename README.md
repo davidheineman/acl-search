@@ -40,22 +40,23 @@ This step allows indexing the anthology manually. This can be skipped, since the
 
 ```sh
 # pull from openreview
-python scrape/openrev.py
+echo "[email]\n[password]" > .openreview
+python src/scrape/openrev.py
 
 # pull from acl anthology
 git clone https://github.com/acl-org/acl-anthology src/acl-anthology
-cp -r src/scrape/acl-anthology/bin/anthology src/scrape/anthology
-cp -r src/scrape/acl-anthology/data src/scrape/acl_data
+cp -r src/acl-anthology/bin/anthology src/scrape/anthology
+cp -r src/acl-anthology/data src/scrape/acl_data
 pip install -r src/acl-anthology/bin/requirements.txt
-rm -rf src/scrape/acl-anthology
-python scrape/acl.py # parse acl_data/ -> .json
+rm -rf src/acl-anthology
+python src/scrape/acl.py # parse acl_data/ -> .json
 
 # create unified dataset
-python parse.py 
+python src/parse.py 
 
 # index with ColBERT 
 # (note sometimes there is a silent failure if the CPP extensions do not exist)
-python index.py
+python src/index.py
 ```
 
 **Deploy as a Docker App**

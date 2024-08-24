@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from constants import OPENREVIEW_PATH
+from constants import OPENREVIEW_PATH, INDEX_ROOT
 
 import json, os
 
@@ -68,8 +68,8 @@ def get_papers(client: Client, grouped_venues: dict, only_accepted: bool=True):
     return papers
 
 
-def init_client():
-    file_path = os.path.abspath("../../.openreview")
+def init_client(OPENREVEW_SECRET_PATH=os.path.join(INDEX_ROOT, ".openreview")):
+    file_path = os.path.abspath(OPENREVEW_SECRET_PATH)
 
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -106,6 +106,7 @@ def download_openreview(openreview_path):
             for k, p in enumerate(papers[t][c]):
                 papers[t][c][k] = p.to_json()
 
+    os.makedirs(os.path.dirname(openreview_path), exist_ok=True)
     with open(openreview_path, "w", encoding="utf-8") as json_file:
         json.dump(papers, json_file, indent=4)
 

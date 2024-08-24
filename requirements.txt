@@ -13,3 +13,4 @@ gunicorn
 openreview-py
 bibtexparser
 tqdm
+-r https://raw.githubusercontent.com/acl-org/acl-anthology/master/bin/requirements.txt

@@ -52,6 +52,8 @@ def main():
     # Load the parsed anthology
     with open(DATASET_PATH, 'r', encoding='utf-8') as f:
         dataset = json.loads(f.read())
+
+    # dataset = dataset[:40]
     
     # Get the abstracts for indexing
     collection = [e['abstract'] for e in dataset]
