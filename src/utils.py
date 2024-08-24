@@ -1,17 +1,19 @@
 import torch
 import tqdm
 import os
+import shutil
 
-from constants import DATASET_PATH, INDEX_ROOT, HF_INDEX_REPO
+from constants import INDEX_PATH, INDEX_ROOT, DATA_PATH, HF_INDEX_REPO
 
 
 def download_index_from_hf():
     """ Download the pre-built ColBERT index from HF if one does not exist """
     from huggingface_hub import snapshot_download
 
-    if not os.path.isfile(DATASET_PATH):
-        print(f'Did not find "{DATASET_PATH}", loading pre-built index from HuggingFace')
+    if not os.path.isdir(INDEX_PATH):
+        print(f'Did not find "{INDEX_PATH}", loading pre-built index from HuggingFace')
         snapshot_download(repo_id=HF_INDEX_REPO, local_dir=INDEX_ROOT, ignore_patterns=["README.md"])
+        shutil.move(os.path.join(INDEX_ROOT, 'papers.json'), os.path.join(DATA_PATH, 'papers.json'))
 
 
 def maxsim(pids, centroid_scores, codes, doclens, offsets, idx, nfiltered_docs):

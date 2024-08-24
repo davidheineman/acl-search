@@ -47,7 +47,6 @@ python src/scrape/openrev.py
 git clone https://github.com/acl-org/acl-anthology src/acl-anthology
 cp -r src/acl-anthology/bin/anthology src/scrape/anthology
 cp -r src/acl-anthology/data src/scrape/acl_data
-pip install -r src/acl-anthology/bin/requirements.txt
 rm -rf src/acl-anthology
 python src/scrape/acl.py # parse acl_data/ -> .json
 
