@@ -5,7 +5,10 @@ app
 index
 *.json
 *.bib
+data
 main.yml
-anthology.db
+papers.db
 UltraFastBERT
 .openreview
+anthology
+acl_data

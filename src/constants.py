@@ -7,9 +7,13 @@ INDEX_NAME = os.getenv("INDEX_NAME", 'index')
 INDEX_ROOT = os.getenv("INDEX_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 INDEX_PATH = os.path.join(INDEX_ROOT, INDEX_NAME)
-ANTHOLOGY_PATH = os.path.join(INDEX_ROOT, 'anthology.bib')
-DATASET_PATH = os.path.join(INDEX_ROOT, 'dataset.json')
+DATA_PATH  = os.path.join(INDEX_ROOT, 'data')
 
-DB_FILENAME = 'anthology.db'
+ANTHOLOGY_BIB_PATH = os.path.join(DATA_PATH, 'anthology.bib')
+ANTHOLOGY_PATH = os.path.join(DATA_PATH, 'anthology.json')
+OPENREVIEW_PATH = os.path.join(DATA_PATH, 'openreview.json')
+DATASET_PATH = os.path.join(DATA_PATH, 'papers.json')
+
+DB_FILENAME = 'papers.db'
 
 VENUES = Literal['workshop', 'journal', 'short', 'demo', 'tutorial', 'industry', 'findings', 'main']

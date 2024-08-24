@@ -232,10 +232,9 @@ class ColBERT():
         if bsize:
             batches = self.query_tokenizer.tensorize(queries, context=context, bsize=bsize, full_length_search=full_length_search)
             batches = [self._query_forward(input_ids, attention_mask) for input_ids, attention_mask in batches]
-            return th.cat(batches)
+            Q = th.cat(batches)
         else:
             input_ids, attention_mask = self.query_tokenizer.tensorize(queries, context=context, full_length_search=full_length_search)
-
             with th.no_grad():
                 with self.amp_manager.context():
                     Q = self._query_forward(input_ids, attention_mask)

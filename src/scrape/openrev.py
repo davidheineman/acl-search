@@ -1,3 +1,8 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from constants import OPENREVIEW_PATH
+
 import json, os
 
 from openreview import Client
@@ -81,7 +86,7 @@ def init_client():
     )
 
 
-def main():
+def download_openreview(openreview_path):
     client = init_client()
 
     only_accepted = True
@@ -101,8 +106,8 @@ def main():
             for k, p in enumerate(papers[t][c]):
                 papers[t][c][k] = p.to_json()
 
-    with open("../../openreview.json", "w", encoding="utf-8") as json_file:
+    with open(openreview_path, "w", encoding="utf-8") as json_file:
         json.dump(papers, json_file, indent=4)
 
 
-if __name__ == "__main__": main()
+if __name__ == "__main__": download_openreview(OPENREVIEW_PATH)

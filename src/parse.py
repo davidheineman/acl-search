@@ -1,113 +1,66 @@
-import bibtexparser, json
+import json, os
 
-from constants import ANTHOLOGY_PATH, DATASET_PATH
+from constants import ANTHOLOGY_PATH, OPENREVIEW_PATH, DATASET_PATH
 
-
-def parse_bibtex(anthology_path, dataset_path):
-    with open(anthology_path, 'r', encoding='utf-8') as f:
-        bib = bibtexparser.load(f)
-    dataset = bib.entries
-
-    print(f'Found {len(dataset)} articles with keys: {dataset[0].keys()}')
-    paper: dict
-    for paper in dataset[:2]:
-        print(f"{paper.get('author')}\n{paper.get('title')}\n{paper.get('url')}\n")
-
-    # Remove any entries without abstracts, since we index on abstracts
-    dataset = [paper for paper in dataset if 'abstract' in paper.keys()]
-
-    with open(dataset_path, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(dataset, indent=4))
-
-    return dataset
+from scrape.acl import preprocess_acl
+from scrape.openrev import download_openreview
 
 
-def preprocess_acl_entries(dataset_path):
-    """
-    Very rough attempt at using ACL URLs to infer their venues. Bless this mess. 
-    """
-    with open(dataset_path, 'r', encoding='utf-8') as f:
-        dataset = json.loads(f.read())
+def preprocess_openreview(openreview_path):
+    dataset = []
 
-    venues = []
-    for id, paper in enumerate(dataset):
-        url = paper['url']
-        year = int(paper['year'])
+    with open(openreview_path, 'r', encoding='utf-8') as f:
+        openreview = json.loads(f.read())
 
-        if year < 2020: 
-            dataset[id]['findings'] = None
-            dataset[id]['venue_type'] = None
-            continue
+    openreview = openreview['conference']
 
-        if 'https://aclanthology.org/' in url:
-            url = url.split('https://aclanthology.org/')[1]
-        elif 'http://www.lrec-conf.org/proceedings/' in url:
-            url = url.split('http://www.lrec-conf.org/proceedings/')[1]
+    for conf_name, conf_entries in openreview.items():
+        year = conf_name.split('/')[1]
+        for conf_entry in conf_entries:
+            # raise RuntimeError(conf_entry['content'])
+            try:
+                formatted_entry = {
+                    'title':    conf_entry['content']['title'],
+                    'abstract': conf_entry['content']['abstract'], # some failures
+                    'year':     year,
+                    'url':      'https://openreview.net' + conf_entry['content']['pdf'],
+                    'pdf':      'https://openreview.net' + conf_entry['content']['pdf'],
+                    'authors':  conf_entry['content']['authors'],
+                    # 'TL;DR':    conf_entry['content']['TL;DR'], # some failures
+                    'venue':    conf_entry['content']['venue'],
+                    'venueid':  conf_entry['content']['venueid'],
+                    '_bibtex':  conf_entry['content']['_bibtex'], # some failures
 
-        if year >= 2020:
-            # new URL format
+                    'invitation': conf_entry['invitation'],
 
-            url_new = '.'.join(url.split('.')[:-1])
-            if url_new != '': url = url_new
+                    'findings': False,
+                    'venue_type': 'main'
+                }
 
-            # For most new venues, the format is "2023.eacl-tutorials" -> "eacl-tutorials"
-            url_new = '.'.join(url.split('.')[1:])
-            if url_new != '': url = url_new
-
-            # 'acl-main' -> 'acl-long'?
-            # 'acl-main' -> 'acl-short'?
-
-            # 'eacl-demo' -> 'eacl-demos'
-            # 'emnlp-tutorial' -> 'emnlp-tutorials'
-            url = url.replace('-demos', '-demo')
-            url = url.replace('-tutorials', '-tutorial')
-
-        elif year >= 2016:
-            # old URL format
-            # P17-1001 -> P17
-
-            url = url.split('-')[0]
-
-            raise RuntimeError('not working')
-
-        venues += [url]
-
-        # Extract paper type from URL
-        _type = None
-        if any(venue in url for venue in ['parlaclarin', 'nlpcovid19']):
-            _type = 'workshop'
-        elif not any(venue in url for venue in ['aacl', 'naacl', 'acl', 'emnlp', 'eacl', 'tacl']):
-            _type = 'workshop'
-        elif 'tacl' in url: _type = 'journal'
-        elif 'srw' in url: _type = 'workshop'
-        elif 'short' in url: _type = 'short'
-        elif 'demo' in url: _type = 'demo'
-        elif 'tutorial' in url: _type = 'tutorial'
-        elif 'industry' in url: _type = 'industry'
-        elif 'findings' in url: _type = 'findings'
-        elif 'main' in url or 'long' in url: _type = 'main'
-        else:
-            print(f'Could not parse: {url}')
-
-        findings = ('findings' in url)
-
-        dataset[id]['findings'] = findings
-        dataset[id]['venue_type'] = _type
-
-    # print(set(venues))
-
-    with open(DATASET_PATH, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(dataset, indent=4))
+                dataset += [formatted_entry]
+            except KeyError as e:
+                print(e)
 
     return dataset
 
 
 def main():
-    # 1) Parse and save the anthology dataset
-    dataset = parse_bibtex(ANTHOLOGY_PATH, DATASET_PATH)
+    dataset = []
 
-    # 2) Pre-process the ACL anthology
-    dataset = preprocess_acl_entries(DATASET_PATH)
+    # 1) Pre-process the ACL anthology
+    dataset += preprocess_acl(ANTHOLOGY_PATH)
+
+    # 2) Pre-process OpenReview
+    if not os.path.exists(OPENREVIEW_PATH):
+        download_openreview(OPENREVIEW_PATH)
+    dataset += preprocess_openreview(OPENREVIEW_PATH)
+
+    # Unfortunately, remove papers without abstracts
+    dataset = [paper for paper in dataset if paper['abstract'] != '']
+
+    # Save dataset
+    with open(DATASET_PATH, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(dataset, indent=4))
 
 
 if __name__ == '__main__': main()

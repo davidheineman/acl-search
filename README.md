@@ -40,15 +40,18 @@ This step allows indexing the anthology manually. This can be skipped, since the
 
 ```sh
 # pull from openreview
-python openrev.py
+python scrape/openrev.py
 
-# get the acl anthology
-curl -O https://aclanthology.org/anthology+abstracts.bib.gz
-gunzip anthology+abstracts.bib.gz
-mv anthology+abstracts.bib anthology.bib
+# pull from acl anthology
+git clone https://github.com/acl-org/acl-anthology src/acl-anthology
+cp -r src/scrape/acl-anthology/bin/anthology src/scrape/anthology
+cp -r src/scrape/acl-anthology/data src/scrape/acl_data
+pip install -r src/acl-anthology/bin/requirements.txt
+rm -rf src/scrape/acl-anthology
+python scrape/acl.py # parse acl_data/ -> .json
 
-# parse .bib -> .json
-python parse.py
+# create unified dataset
+python parse.py 
 
 # index with ColBERT 
 # (note sometimes there is a silent failure if the CPP extensions do not exist)
@@ -101,13 +104,8 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
-        - Scrape: 
-            - https://proceedings.neurips.cc/
-            - https://dblp.org/db/conf/iclr/index.html
-            - https://dblp.org/db/conf/nips/index.html
-            - openreview
-                - https://github.com/pranftw/openreview_scraper
-                - https://github.com/sebastianGehrmann/dblp-pub
+        - Use https://aclanthology.org/info/development/
+        - Add openreview scrape
         - Include the title in the indexing
         - Have articles before 2020
         - Put query in URL (?q=XXX)

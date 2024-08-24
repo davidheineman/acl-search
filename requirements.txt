@@ -12,3 +12,4 @@ gunicorn
 # scraping
 openreview-py
 bibtexparser
+tqdm
