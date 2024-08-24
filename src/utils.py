@@ -13,6 +13,9 @@ def download_index_from_hf():
     if not os.path.isdir(INDEX_PATH):
         print(f'Did not find "{INDEX_PATH}", loading pre-built index from HuggingFace')
         snapshot_download(repo_id=HF_INDEX_REPO, local_dir=INDEX_ROOT, ignore_patterns=["README.md"])
+
+        # Move papers.json -> data/papers.json
+        os.makedirs(os.path.dirname(os.path.join(DATA_PATH, 'papers.json')), exist_ok=True)
         shutil.move(os.path.join(INDEX_ROOT, 'papers.json'), os.path.join(DATA_PATH, 'papers.json'))
 
 
