@@ -108,4 +108,4 @@ if __name__ == "__main__":
     colbert = ColBERT(index_path=INDEX_PATH)
     print(colbert.search('text simplificaiton'))
     print(api_search_query("text simplification")['topk'][:5])
-    app.run("0.0.0.0", PORT, debug=True)
+    app.run("0.0.0.0", PORT)

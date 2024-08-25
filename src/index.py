@@ -22,7 +22,9 @@ def index_anthology(collection, index_name):
             nbits=nbits, 
             kmeans_niters=4, # specifies the number of iterations of k-means clustering; 4 is a good and fast default.
             index_path=INDEX_NAME,
-            bsize=1024
+            bsize=1024,
+            centroid_score_threshold=0.8,
+            ndocs=8192
         ) 
 
         indexer = Indexer(

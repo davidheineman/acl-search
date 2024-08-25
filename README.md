@@ -91,18 +91,12 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
-        - Return specific venue name
-        - Store / return author names as a list
-        - Show bibkey and bibtex in UI
-        
         - Make the titles different colors depending on the venue / type
 
-        - Single click "copy" for full bibtex, and bib key!
-        - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long
+        - Single click "copy" for bib key
         - Colors: make the colors resemble the ACL page much closer
             - There's still a bunch of blue from the bootstrap themeing
         - Smaller line spacing for abstract text
-        - Add "PDF" button
         - Justify the result metadata (Year, venue, etc.) so the content all starts at the same vertical position
         - Add a "Expand" button at the end of the abstract
         - Put two sliders on the year range (and make the years selectable, with the years at both ends of the bar)
@@ -110,9 +104,8 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
-        - Fix ML entries (only keep accepted papers, figure out which years are included)
+        - Only includes ICLR 2021-2023, NeurIPS 2021-2022. Fix this.
         - Include the title in the indexing
-        - Can we return more than 128 documents? Currenlty, search-then-filter can return no results, just because the top results were in another category.
 
     - On indexing
         - Make indexing code better 
