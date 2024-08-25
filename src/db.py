@@ -90,6 +90,10 @@ def parse_results(results):
         author  = author.replace("{", "").replace("}", "").replace('\\"', "")
         abstract = abstract.replace("{", "").replace("}", "").replace("\\", "")
 
+        # Parse list of strings
+        import ast
+        author = ast.literal_eval(str(author))
+        
         parsed_results[int(pid)] = {
             'title': title, 
             'abstract': abstract, 

@@ -17,8 +17,8 @@ from constants import INDEX_PATH
 
 
 NCELLS = 1  # Number of self.centroids to use in PLAID
-CENTROID_SCORE_THRESHOLD = 0.5 # How close a document has to be to a centroid to be considered
-NDOCS = 512  # Number of closest documents to consider
+CENTROID_SCORE_THRESHOLD = 0.8 # 0.5  # How close a document has to be to a centroid to be considered
+NDOCS = 8192 # 512  # Number of closest documents to consider
 
 
 class ColBERT():

@@ -33,7 +33,7 @@
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="nlp" id="nlp" checked>
-                            <label class="form-check-label" for="nlp">ACL</label>
+                            <label class="form-check-label" for="nlp">ACL/EMNLP</label>
                         </div>
                         <div class="ml-4">
                             <div class="form-check">
@@ -73,12 +73,28 @@
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="ml" id="ml">
-                            <label class="form-check-label" for="ml">ML</label>
+                            <label class="form-check-label" for="ml">NeurIPS/ICLR/ICML</label>
                         </div>
                         <div class="ml-4">
                             <div class="form-check">
-                                <input class="form-check-input ml-checkbox" type="checkbox" value="main" id="ml-main">
-                                <label class="form-check-label" for="ml-main">Conference</label>
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="spotlight" id="ml-spotlight">
+                                <label class="form-check-label" for="ml-spotlight">Spotlight</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="oral" id="ml-oral">
+                                <label class="form-check-label" for="ml-oral">Oral</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="poster" id="ml-poster">
+                                <label class="form-check-label" for="ml-poster">Poster</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="invite" id="ml-invite">
+                                <label class="form-check-label" for="ml-invite">Invite</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="rejected" id="ml-rejected">
+                                <label class="form-check-label" for="ml-rejected">Rejected</label>
                             </div>
                         </div>
                     </div>
@@ -154,11 +170,18 @@
             });
         });
 
-
         document.getElementById('ml').addEventListener('change', function() {
             var isChecked = this.checked;
             document.querySelectorAll('.ml-checkbox').forEach(function(checkbox) {
                 checkbox.checked = isChecked;
+            });
+        });
+
+        document.querySelectorAll('.ml-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const allMlCheckboxes = document.querySelectorAll('.ml-checkbox');
+                const allUnchecked = Array.from(allMlCheckboxes).every(cb => !cb.checked);
+                document.getElementById('ml').checked = !allUnchecked;
             });
         });
 
@@ -173,18 +196,6 @@
 
             let html = '';
             data.forEach(paper => {
-                // html += `
-                //     <div class="card">
-                //         <div class="card-body">
-                //             <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
-                //             <h6 class="card-subtitle mb-1 text-muted">${paper.author}</h6>
-                //             <p class="card-subtitle text-muted paper-metadata">
-                //                 <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
-                //             </p>
-                //         </div>
-                //     </div>
-                // `;
-
                 paper.author = Array.isArray(paper.author) ? paper.author : [paper.author];
 
                 html += `
@@ -255,16 +266,7 @@
 
             const abstractElement = document.querySelector(`#abstract-${paperId}`);
             if (abstractElement) {
-                // Toggle visibility if the abstract element already exists
                 abstractElement.style.display = abstractElement.style.display === 'none' ? 'block' : 'none';
-            } else {
-                // Create and insert the abstract element if it doesn't exist
-                // const cardBody = document.querySelector(`#paper-${paperId} .card-body`);
-                // const abstractParagraph = document.createElement('p');
-                // abstractParagraph.id = `abstract-${paperId}`;
-                // abstractParagraph.className = 'card-text mt-2';
-                // abstractParagraph.innerHTML = `<small class="text-muted">${paper.abstract}</small>`;
-                // cardBody.appendChild(abstractParagraph);
             }
         }
 

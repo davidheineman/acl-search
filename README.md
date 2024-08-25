@@ -110,7 +110,9 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
+        - Fix ML entries (only keep accepted papers, figure out which years are included)
         - Include the title in the indexing
+        - Can we return more than 128 documents? Currenlty, search-then-filter can return no results, just because the top results were in another category.
 
     - On indexing
         - Make indexing code better 

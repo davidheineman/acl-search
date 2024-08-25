@@ -13,7 +13,7 @@ import json
 from tqdm import tqdm
 
 from constants import ANTHOLOGY_PATH
-from anthology import Anthology, Paper
+from anthology import Anthology, Paper, PersonName
 
 
 ANTHOLOGY_RAW_PATH = os.path.join(CURRENT_DIR, 'acl_data')
@@ -33,6 +33,13 @@ def preprocess_acl(anthology_path):
 
         venue_type, is_findings = get_venue_type(year, url)
 
+        authors = [person for person in paper.iter_people()]
+        authors = [author for author, id, type_ in authors]
+
+        for i, author in enumerate(authors):
+            if not isinstance(author, str):
+                authors[i] = str(author)
+
         formatted_entry = {
             'title':    paper.get_title(form='plain'),
             'abstract': paper.get_abstract(form='plain'),
@@ -40,8 +47,7 @@ def preprocess_acl(anthology_path):
             'year':     year,
             'url':      url,
             'pdf':      paper_dict.get('pdf'),
-            'authors':  paper_dict.get('author_string'), # [p for p in paper.iter_people()],
-            # 'venue':    paper_dict['venue'][0], # failures?
+            'authors':  authors,
             'venue':    paper_dict['booktitle'],
             'venueid':  paper.get_venue_acronym(),
             '_bibtex':  paper.as_bibtex(concise=True),
@@ -51,6 +57,8 @@ def preprocess_acl(anthology_path):
 
             'venue_type': venue_type,
             'findings': is_findings,
+
+            'area': 'nlp'
 
             # 'TL;DR':    None,
         }

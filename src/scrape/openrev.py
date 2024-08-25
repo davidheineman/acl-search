@@ -96,15 +96,23 @@ def download_openreview(openreview_path):
     groups = ["conference"]
 
     venues = get_venues(client, conferences, years)
+    
     print(venues)
+    
     grouped_venues = group_venues(venues, groups)
+    
     print(grouped_venues)
+    
     papers = get_papers(client, grouped_venues, only_accepted)
 
     for i, t in enumerate(papers):
         for j, c in enumerate(papers[t]):
             for k, p in enumerate(papers[t][c]):
                 papers[t][c][k] = p.to_json()
+
+    # papers['conference'] = papers.get('conference', []) + papers.get('Conference', [])
+    # if 'Conference' in papers:
+    #     del papers['Conference']
 
     os.makedirs(os.path.dirname(openreview_path), exist_ok=True)
     with open(openreview_path, "w", encoding="utf-8") as json_file:
