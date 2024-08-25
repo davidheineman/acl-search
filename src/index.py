@@ -22,7 +22,7 @@ def index_anthology(collection, index_name):
             nbits=nbits, 
             kmeans_niters=4, # specifies the number of iterations of k-means clustering; 4 is a good and fast default.
             index_path=INDEX_NAME,
-            bsize=1024,
+            bsize=256, # for A40 GPU. need to apply in Indexer.index() directly
             centroid_score_threshold=0.8,
             ndocs=8192
         ) 
@@ -55,7 +55,7 @@ def main():
     with open(DATASET_PATH, 'r', encoding='utf-8') as f:
         dataset = json.loads(f.read())
 
-    # dataset = dataset[:40]
+    # dataset = dataset[:5000] # 5K in 48s/iter on 2 A40s (67K in 2hr)
     
     # Get the abstracts for indexing
     collection = [e['abstract'] for e in dataset]

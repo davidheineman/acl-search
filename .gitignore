@@ -13,3 +13,4 @@ UltraFastBERT
 anthology
 acl_data
 data/
+*.log

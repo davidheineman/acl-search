@@ -31,9 +31,9 @@ def preprocess_openreview(openreview_path):
                 if 'Submitted' in venue:
                     venue_type = 'rejected'
                 elif 'notable top 25%' in venue:
-                    venue_type = 'oral'
-                elif 'notable top 5%' in venue:
                     venue_type = 'spotlight'
+                elif 'notable top 5%' in venue:
+                    venue_type = 'oral'
                 elif 'Accept' in venue:
                     venue_type = 'poster'
                 else:
