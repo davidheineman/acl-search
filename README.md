@@ -91,11 +91,11 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
-        - Add separate selector for NLP venues and ML venues
         - Return specific venue name
         - Store / return author names as a list
         - Show bibkey and bibtex in UI
-        - Seperate URL/PDF/ABS buttons (show titles only)
+        
+        - Make the titles different colors depending on the venue / type
 
         - Single click "copy" for full bibtex, and bib key!
         - Maybe make the UI more compressed like this: https://aclanthology.org/events/eacl-2024/#2024eacl-long

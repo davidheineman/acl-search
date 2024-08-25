@@ -16,45 +16,70 @@
         <form id="searchForm">
             <div class="row">
                 <div class="col-md-3 sidebar">
-                    <div class="mb-3">
-                        <h1 class="mb-4">ACL Search</h1>
-                        <label for="yearRange" class="form-label range-label"><span id="yearRangeValue"></span></label>
-                        <input type="range" class="form-range" id="yearRange" min="2010" max="2024" step="1"
-                            value="2021">
+                    <div class="mb-4">
+                        <h1 class="mb-3">papers</h1>
+                        <div class="range-label">
+                            <span id="min-value">2020</span> - <span id="max-value">2024</span>
+                        </div>
+
+                        <div class="range-container">
+                            <input type="range" id="yearRangeMin" min="2010" max="2024" step="1" value="2020">
+                            <input type="range" id="yearRangeMax" min="2010" max="2024" step="1" value="2024">
+                            <div class="slider-track"></div>
+                            <div class="slider-range" id="sliderRange"></div>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="main" id="main" checked>
-                            <label class="form-check-label" for="main">Main Long</label>
+                            <input class="form-check-input" type="checkbox" value="nlp" id="nlp" checked>
+                            <label class="form-check-label" for="nlp">ACL</label>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="short" id="short" checked>
-                            <label class="form-check-label" for="short">Main Short</label>
+                        <div class="ml-4">
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="main" id="nlp-main" checked>
+                                <label class="form-check-label" for="nlp-main">Main Long</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="short" id="nlp-short" checked>
+                                <label class="form-check-label" for="nlp-short">Main Short</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="findings" id="nlp-findings">
+                                <label class="form-check-label" for="nlp-findings">Findings</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="journal" id="nlp-journal">
+                                <label class="form-check-label" for="nlp-journal">Journal</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="workshop" id="nlp-workshop">
+                                <label class="form-check-label" for="nlp-workshop">Workshop</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="demo" id="nlp-demo">
+                                <label class="form-check-label" for="nlp-demo">Demo Track</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="industry" id="nlp-industry">
+                                <label class="form-check-label" for="nlp-industry">Industry Track</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input nlp-checkbox" type="checkbox" value="tutorial" id="nlp-tutorial">
+                                <label class="form-check-label" for="nlp-tutorial">Tutorial Abstracts</label>
+                            </div>
                         </div>
+                    </div>
+                    <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="findings" id="findings">
-                            <label class="form-check-label" for="findings">Findings</label>
+                            <input class="form-check-input" type="checkbox" value="ml" id="ml" checked>
+                            <label class="form-check-label" for="ml">ML</label>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="journal" id="journal">
-                            <label class="form-check-label" for="journal">Journal</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="workshop" id="workshop">
-                            <label class="form-check-label" for="workshop">Workshop</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="demo" id="demo">
-                            <label class="form-check-label" for="demo">Demo Track</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="industry" id="industry">
-                            <label class="form-check-label" for="industry">Industry Track</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="tutorial" id="tutorial">
-                            <label class="form-check-label" for="tutorial">Tutorial Abstracts</label>
+                        <div class="ml-4">
+                            <div class="form-check">
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="main" id="ml-main" checked>
+                                <label class="form-check-label" for="ml-main">Conference</label>
+                            </div>
                         </div>
                     </div>
 
@@ -66,7 +91,7 @@
                     <div class="search-bar-container">
                         <input type="text" class="form-control" id="query" name="query"
                             placeholder="Information is the resolution of uncertainty..." required>
-                        <button type="submit" class="btn btn-primary" form="searchForm">Search</button>
+                        <button type="submit" class="btn btn-primary" form="searchForm">search</button>
                     </div>
                     <div id="spinner" class="spinner-border" style="display: none" role="status">
                         <span class="sr-only"></span>
@@ -78,18 +103,64 @@
     </div>
 
     <script>
-        const yearRange = document.getElementById('yearRange');
-        const yearRangeValue = document.getElementById('yearRangeValue');
+        const yearRangeMin = document.getElementById('yearRangeMin');
+        const yearRangeMax = document.getElementById('yearRangeMax');
+        const minValueDisplay = document.getElementById('min-value');
+        const maxValueDisplay = document.getElementById('max-value');
+        const sliderRange = document.getElementById('sliderRange');
 
-        function updateYearRangeValue() {
-            const startYear = parseInt(yearRange.value);
-            const endYear = 2024;
-            yearRangeValue.textContent = `${startYear} - ${endYear}`;
+        function updateSlider() {
+            const minVal = parseInt(yearRangeMin.value);
+            const maxVal = parseInt(yearRangeMax.value);
+
+            if (minVal > maxVal) {
+                yearRangeMin.value = maxVal;
+            }
+            if (maxVal < minVal) {
+                yearRangeMax.value = minVal;
+            }
+
+            const minValue = parseInt(yearRangeMin.value);
+            const maxValue = parseInt(yearRangeMax.value);
+
+            const percent1 = ((minValue - 2010) / (2024 - 2010)) * 100;
+            const percent2 = ((maxValue - 2010) / (2024 - 2010)) * 100;
+
+            sliderRange.style.left = percent1 + '%';
+            sliderRange.style.width = (percent2 - percent1) + '%';
+
+            minValueDisplay.textContent = minValue;
+            maxValueDisplay.textContent = maxValue;
         }
 
-        yearRange.addEventListener('input', updateYearRangeValue);
-        updateYearRangeValue();  // Initial call to set the text
+        yearRangeMin.addEventListener('input', updateSlider);
+        yearRangeMax.addEventListener('input', updateSlider);
 
+        updateSlider();
+
+
+        document.getElementById('nlp').addEventListener('change', function() {
+            var isChecked = this.checked;
+            document.querySelectorAll('.nlp-checkbox').forEach(function(checkbox) {
+                checkbox.checked = isChecked;
+            });
+        });
+
+        document.querySelectorAll('.nlp-checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const allNlpCheckboxes = document.querySelectorAll('.nlp-checkbox');
+                const allUnchecked = Array.from(allNlpCheckboxes).every(cb => !cb.checked);
+                document.getElementById('nlp').checked = !allUnchecked;
+            });
+        });
+
+
+        document.getElementById('ml').addEventListener('change', function() {
+            var isChecked = this.checked;
+            document.querySelectorAll('.ml-checkbox').forEach(function(checkbox) {
+                checkbox.checked = isChecked;
+            });
+        });
 
         function displayResults(data) {
             const resultsDiv = document.getElementById('results');
@@ -102,36 +173,67 @@
 
             let html = '';
             data.forEach(paper => {
+                // html += `
+                //     <div class="card">
+                //         <div class="card-body">
+                //             <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
+                //             <h6 class="card-subtitle mb-1 text-muted">${paper.author}</h6>
+                //             <p class="card-subtitle text-muted paper-metadata">
+                //                 <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
+                //             </p>
+                //         </div>
+                //     </div>
+                // `;
+
+                paper.author = Array.isArray(paper.author) ? paper.author : [paper.author];
+
                 html += `
                     <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
-                            <h6 class="card-subtitle mb-1 text-muted">${paper.author}</h6>
-                            <p class="card-subtitle text-muted paper-metadata">
-                                <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
-                                ${paper.is_findings ? '<br><strong>Findings Paper</strong>' : ''}
-                            </p>
-                            <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
+                        <div class="row">
+                            <div class="col-1 col-btn">
+                                <div class="d-flex flex-column">
+                                    <a class="btn btn-paper btn-sm mb-1" href="${paper.pdf}" target="_blank" data-toggle="tooltip" data-placement="top" title="Open PDF">
+                                        pdf
+                                    </a>
+                                    <a class="btn btn-paper btn-sm mb-1" href="#" onclick="copyBibtex('${paper.pid}')" data-toggle="tooltip" data-placement="top" title="Copy BibTeX">
+                                        bib
+                                    </a>
+                                    <a class="btn btn-paper btn-sm" href="#" onclick="showAbstract('${paper.pid}')" data-toggle="tooltip" data-placement="top" title="Show Abstract">
+                                        abs
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-11">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
+                                    <h6 class="card-subtitle mb-1 text-light">${paper.author.join(', ')}</h6>
+                                    <p class="card-subtitle text-muted paper-metadata">
+                                        <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
             });
 
+            // <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
+
             resultsDiv.innerHTML = html;
-        }
+        }        
 
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-
+        async function performSearch(form) {
             const params = new URLSearchParams();
             params.append('query', form.query.value);
-            params.append('start_year', yearRange.value);
-            params.append('end_year', '2024');
+            params.append('start_year', yearRangeMin.value);
+            params.append('end_year', yearRangeMax.value);
 
             const url = new URL(window.location.href);
             url.searchParams.set('q', form.query.value);
             window.history.pushState({}, '', url);
+
+            // Update the title to include the search query
+            document.title = `${form.query.value} - ACL Search`;
 
             const selectedVenues = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                 .map(checkbox => checkbox.value);
@@ -151,6 +253,11 @@
             } finally {
                 spinner.style.display = 'none';
             }
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await performSearch(e.target);
         });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -159,7 +266,7 @@
 
             if (query) {
                 document.getElementById('query').value = query;
-                // submitForm(query);
+                performSearch(document.getElementById('searchForm'));
             }
         });
     </script>

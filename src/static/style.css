@@ -68,6 +68,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Custom styling for checkboxes */
+.form-check {
+    user-select: none
+}
+
 .form-check-input:checked {
     background-color: var(--acl-red);
     border-color: var(--acl-red);
@@ -97,12 +101,46 @@ a:focus {
 }
 
 .card {
-    background-color: #f8f9fa !important;
-    color: #212529
+    /* background-color: #f8f9fa !important; */
+    color: #212529;
+    border: 0;
+}
+
+.card-body {
+    padding: 0;
+}
+
+.card-body .card-title {
+    font-size: 13pt;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
 }
 
 .card-body h6 {
     font-size: 11pt;
+}
+
+.text-light {
+    color: rgba(0, 0, 0, 0.6) !important
+}
+
+.btn-paper, .btn-paper:hover {    
+    width: 30px;
+    font-size: 10px;
+    padding: 1px;
+    background-color: #f8f9fa;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.6) !important
+}
+
+.btn-paper:hover {
+    text-decoration: none;
+    background-color: #e9ecef;
+}
+
+.col-btn {
+    padding-top: 1px;
+    width: 40px;
 }
 
 .paper-metadata {
@@ -151,4 +189,67 @@ body {
     border-right-color: transparent;
     align-self: center;
     margin-top: 16px;
+}
+
+.ml-4 {
+    margin-left: 8px;
+}
+
+.range-container {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+input[type="range"] {
+    margin-top: 9px;
+    position: absolute;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 0;
+    pointer-events: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    /* background: #007bff; */
+    cursor: pointer;
+    pointer-events: auto;
+    border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    /* background: #007bff; */
+    cursor: pointer;
+    pointer-events: auto;
+    border-radius: 50%;
+}
+
+.slider-track {
+    position: absolute;
+    top: 7px;
+    width: 100%;
+    height: 6px;
+    border: 1px solid #e0e0e0;
+    background: #F8F9FA;
+    z-index: -1;
+    border-radius: 8px;
+}
+
+.slider-range {
+    position: absolute;
+    top: 7px;
+    height: 6px;
+    background: var(--acl-red);
+    z-index: -1;
+    border-radius: 8px;
+}
+
+.range-label {
+    text-align: left;
 }
