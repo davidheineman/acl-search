@@ -104,6 +104,7 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
+        - Only includes ACL articles with abstracts (mostly post-2019)
         - Only includes ICLR 2021-2023, NeurIPS 2021-2022. Fix this.
         - Include the title in the indexing
 
