@@ -72,12 +72,12 @@
                     </div>
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="ml" id="ml" checked>
+                            <input class="form-check-input" type="checkbox" value="ml" id="ml">
                             <label class="form-check-label" for="ml">ML</label>
                         </div>
                         <div class="ml-4">
                             <div class="form-check">
-                                <input class="form-check-input ml-checkbox" type="checkbox" value="main" id="ml-main" checked>
+                                <input class="form-check-input ml-checkbox" type="checkbox" value="main" id="ml-main">
                                 <label class="form-check-label" for="ml-main">Conference</label>
                             </div>
                         </div>
@@ -195,10 +195,10 @@
                                     <a class="btn btn-paper btn-sm mb-1" href="${paper.pdf}" target="_blank" data-toggle="tooltip" data-placement="top" title="Open PDF">
                                         pdf
                                     </a>
-                                    <a class="btn btn-paper btn-sm mb-1" href="#" onclick="copyBibtex('${paper.pid}')" data-toggle="tooltip" data-placement="top" title="Copy BibTeX">
+                                    <a class="btn btn-paper btn-sm mb-1" href="javascript:void(0);" onclick="copyBibtex('${paper.bibkey}')" data-toggle="tooltip" data-placement="top" title="Copy BibTeX">
                                         bib
                                     </a>
-                                    <a class="btn btn-paper btn-sm" href="#" onclick="showAbstract('${paper.pid}')" data-toggle="tooltip" data-placement="top" title="Show Abstract">
+                                    <a class="btn btn-paper btn-sm" href="javascript:void(0);" onclick="showAbstract('${paper.bibkey}')" data-toggle="tooltip" data-placement="top" title="Show Abstract">
                                         abs
                                     </a>
                                 </div>
@@ -206,21 +206,67 @@
                             <div class="col-11">
                                 <div class="card-body">
                                     <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
-                                    <h6 class="card-subtitle mb-1 text-light">${paper.author.join(', ')}</h6>
-                                    <p class="card-subtitle text-muted paper-metadata">
+                                    <h6 class="card-subtitle mb-1 text-light-authors">${paper.author.join(', ')}</h6>
+                                    <p class="card-subtitle text-light-metadata paper-metadata">
                                         <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
                                     </p>
+                                    <div id="abstract-${paper.bibkey}" style="display: none;" class="mt-1" >
+                                        <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
+
+            // Add a global variable for the paper
+            window.paperData = window.paperData || {};
+            window.paperData[paper.bibkey] = paper;
             });
 
             // <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
 
             resultsDiv.innerHTML = html;
         }        
+
+        function copyBibtex(paperId) {
+            const paper = window.paperData[paperId];
+            if (!paper) {
+                console.error('Paper data not found');
+                return;
+            }
+
+            const authors = Array.isArray(paper.author) ? paper.author.join(' and ') : paper.author;
+            const bibtex = paper.bibtex
+
+            navigator.clipboard.writeText(bibtex).then(() => {
+            }).catch(err => {
+                console.error('Failed to copy BibTeX: ', err);
+                alert('Failed to copy BibTeX. Please try again.');
+            });
+        }
+
+        function showAbstract(paperId) {
+            const paper = window.paperData[paperId];
+            if (!paper) {
+                console.error('Paper data not found');
+                return;
+            }
+
+            const abstractElement = document.querySelector(`#abstract-${paperId}`);
+            if (abstractElement) {
+                // Toggle visibility if the abstract element already exists
+                abstractElement.style.display = abstractElement.style.display === 'none' ? 'block' : 'none';
+            } else {
+                // Create and insert the abstract element if it doesn't exist
+                // const cardBody = document.querySelector(`#paper-${paperId} .card-body`);
+                // const abstractParagraph = document.createElement('p');
+                // abstractParagraph.id = `abstract-${paperId}`;
+                // abstractParagraph.className = 'card-text mt-2';
+                // abstractParagraph.innerHTML = `<small class="text-muted">${paper.abstract}</small>`;
+                // cardBody.appendChild(abstractParagraph);
+            }
+        }
 
         async function performSearch(form) {
             const params = new URLSearchParams();

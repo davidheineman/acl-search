@@ -120,11 +120,15 @@ a:focus {
     font-size: 11pt;
 }
 
-.text-light {
+.text-light-authors {
+    color: rgba(0, 0, 0, 0.5) !important
+}
+
+.text-light-metadata {
     color: rgba(0, 0, 0, 0.6) !important
 }
 
-.btn-paper, .btn-paper:hover {    
+.btn-paper, .btn-paper:hover, .btn-paper:focus, .btn-paper:active {    
     width: 30px;
     font-size: 10px;
     padding: 1px;
