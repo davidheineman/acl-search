@@ -53,7 +53,6 @@ def query():
     start_year: Optional[int]
     end_year: Optional[int]
     venue_type: Optional[Union[VENUES, List[VENUES]]]
-    is_findings: Optional[bool]
 
     if request.method in ["POST", "GET"]:
         args = request.form if request.method == "POST" else request.args
@@ -61,7 +60,6 @@ def query():
         start_year  = args.get('start_year', None)
         end_year    = args.get('end_year', None)
         venue_type  = args.getlist('venue_type', None)
-        is_findings = args.get('is_findings', None)
     
     if not is_valid_query(query): 
         abort(400, "Invalid query :(")
@@ -75,8 +73,7 @@ def query():
         pids, 
         start_year=start_year,
         end_year=end_year,
-        venue_type=venue_type,
-        is_findings=is_findings
+        venue_type=venue_type
     )
 
     K = 1000

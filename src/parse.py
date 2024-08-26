@@ -53,12 +53,8 @@ def preprocess_openreview(openreview_path):
                     'venueid':  venueid,
                     '_bibtex':  bibtex, # some failures
                     '_bibkey':  bibkey,
-
                     'invitation': conf_entry['invitation'],
-
-                    'findings': False,
                     'venue_type': venue_type,
-
                     'area': 'ml'
                 }
 
@@ -83,8 +79,8 @@ def main():
         download_openreview(OPENREVIEW_PATH)
     dataset += preprocess_openreview(OPENREVIEW_PATH)
 
-    # Unfortunately, remove papers without abstracts
-    dataset = [paper for paper in dataset if paper['abstract'] != '']
+    # Unfortunately, remove papers without abstracts and titles
+    dataset = [paper for paper in dataset if (paper['abstract'] != '' or paper['title'] != '')]
 
     # Save dataset
     with open(DATASET_PATH, 'w', encoding='utf-8') as f:

@@ -37,7 +37,6 @@ def create_database():
         bibkey VARCHAR(100), 
         invitation VARCHAR(100), 
         venue_type VARCHAR(150),
-        is_findings TINYINT(1) NOT NULL DEFAULT 0
     )
     """)
 
@@ -58,20 +57,18 @@ def create_database():
         bibkey      = paper.get('_bibkey', '')
         invitation  = paper.get('invitation', '')
         venue_type  = paper.get('venue_type', '')
-        is_findings = paper.get('findings', '0')
 
-        is_findings = is_findings if is_findings is not None else 0
         author = str(author)
 
         if not abstract: continue
 
-        vals += [(pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings)]
+        vals += [(pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type)]
 
     sql = """
     INSERT INTO paper (
-        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings
+        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type
     ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )
     """
 
@@ -84,7 +81,7 @@ def parse_results(results):
     parsed_results = {}
 
     for result in results:
-        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type, is_findings = result
+        pid, title, abstract, year, url, pdf, author, venue, venueid, bibtex, bibkey, invitation, venue_type = result
 
         title    = title.replace("{", "").replace("}", "")
         author  = author.replace("{", "").replace("}", "").replace('\\"', "")
@@ -106,8 +103,7 @@ def parse_results(results):
             'bibtex': bibtex, 
             'bibkey': bibkey, 
             'invitation': invitation, 
-            'venue_type': venue_type, 
-            'is_findings': is_findings
+            'venue_type': venue_type
         }
 
     return parsed_results
@@ -117,8 +113,7 @@ def query_paper_metadata(
         pids: List[int], 
         start_year: int = None, 
         end_year: int = None, 
-        venue_type: Union[VENUES, List[VENUES]] = None, 
-        is_findings: Optional[bool] = None
+        venue_type: Union[VENUES, List[VENUES]] = None
     ):
     PAPER_QUERY = """
     SELECT * 
@@ -139,7 +134,6 @@ def query_paper_metadata(
     constraints_str = ""
     if start_year: constraints_str += f" AND year >= {start_year}"
     if end_year: constraints_str += f" AND year <= {end_year}"
-    if is_findings: constraints_str += f" AND is_findings = {is_findings}"
     if venue_type: 
         venue_str = ','.join([f'"{venue}"' for venue in venue_type])
         constraints_str += f" AND venue_type IN ({venue_str})"
