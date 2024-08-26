@@ -43,7 +43,7 @@ def preprocess_openreview(openreview_path):
 
                 formatted_entry = {
                     'title':    conf_entry['content']['title'],
-                    'abstract': conf_entry['content']['abstract'], # some failures
+                    'abstract': conf_entry['content'].get('abstract'),
                     'year':     int(year),
                     'url':      'https://openreview.net/forum?id=' + conf_entry['id'], # 'forum', 'original'
                     'pdf':      'https://openreview.net' + conf_entry['content']['pdf'],
