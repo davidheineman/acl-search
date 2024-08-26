@@ -96,7 +96,7 @@ def main():
     dataset = []
 
     # 1) Pre-process the ACL anthology
-    # dataset += preprocess_acl(ANTHOLOGY_PATH)
+    dataset += preprocess_acl(ANTHOLOGY_PATH)
 
     # 2) Pre-process OpenReview
     if not os.path.exists(OPENREVIEW_PATH):
