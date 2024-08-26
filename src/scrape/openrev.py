@@ -6,6 +6,7 @@ from constants import OPENREVIEW_PATH, INDEX_ROOT
 import json, os
 
 from openreview import Client
+from openreview.api import OpenReviewClient
 
 
 def get_venues(client: Client, confs: list[str], years: list[int]) -> list[str]:
@@ -41,30 +42,33 @@ def group_venues(venues: list[str], bins: list[str]) -> dict:
     return bins_dict
 
 
-def get_grouped_venue_papers(client: Client, grouped_venue: dict, only_accepted: bool=True):
+def get_grouped_venue_papers(clients: list[Client], grouped_venue: dict, only_accepted: bool=True):
     papers = {}
     for venue in grouped_venue:
+        print(f'Getting: {venue}')
         papers[venue] = []
-        if only_accepted:
-            submissions = client.get_all_notes(
-                content={"venueid": venue}, details="directReplies"
-            )
-        else:
-            single_blind_submissions = client.get_all_notes(
-                invitation=f"{venue}/-/Submission", details="directReplies"
-            )
-            double_blind_submissions = client.get_all_notes(
-                invitation=f"{venue}/-/Blind_Submission", details="directReplies"
-            )
-            submissions = single_blind_submissions + double_blind_submissions
-        papers[venue] += submissions
+        for client in clients:
+            if len(papers[venue]) > 0: continue
+            if only_accepted:
+                submissions = client.get_all_notes(
+                    content={"venueid": venue}, details="directReplies"
+                )
+            else:
+                single_blind_submissions = client.get_all_notes(
+                    invitation=f"{venue}/-/Submission", details="directReplies"
+                )
+                double_blind_submissions = client.get_all_notes(
+                    invitation=f"{venue}/-/Blind_Submission", details="directReplies"
+                )
+                submissions = single_blind_submissions + double_blind_submissions
+            papers[venue] += submissions
     return papers
 
 
-def get_papers(client: Client, grouped_venues: dict, only_accepted: bool=True):
+def get_papers(clients: list[Client], grouped_venues: dict, only_accepted: bool=True):
     papers = {}
     for group, grouped_venue in grouped_venues.items():
-        papers[group] = get_grouped_venue_papers(client, grouped_venue, only_accepted)
+        papers[group] = get_grouped_venue_papers(clients, grouped_venue, only_accepted)
     return papers
 
 
@@ -79,15 +83,23 @@ def init_client(OPENREVEW_SECRET_PATH=os.path.join(INDEX_ROOT, ".openreview")):
         username = lines[0].strip()
         password = lines[1].strip()
 
-    return Client(
+    old_client = Client(
         baseurl="https://api.openreview.net",
         username=username,
         password=password,
     )
 
+    new_client = OpenReviewClient(
+        baseurl="https://api2.openreview.net",
+        username=username,
+        password=password,
+    )
+
+    return old_client, new_client
+
 
 def download_openreview(openreview_path):
-    client = init_client()
+    client1, client2 = init_client()
 
     only_accepted = True
 
@@ -95,7 +107,7 @@ def download_openreview(openreview_path):
     conferences = ["NeurIPS", "ICLR", "ICML"] # https://openreview.net/group?id=NeurIPS.cc
     groups = ["conference"]
 
-    venues = get_venues(client, conferences, years)
+    venues = get_venues(client1, conferences, years)
     
     print(venues)
     
@@ -103,7 +115,7 @@ def download_openreview(openreview_path):
     
     print(grouped_venues)
     
-    papers = get_papers(client, grouped_venues, only_accepted)
+    papers = get_papers([client1, client2], grouped_venues, only_accepted)
 
     for i, t in enumerate(papers):
         for j, c in enumerate(papers[t]):
