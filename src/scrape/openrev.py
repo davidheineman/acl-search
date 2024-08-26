@@ -110,10 +110,6 @@ def download_openreview(openreview_path):
             for k, p in enumerate(papers[t][c]):
                 papers[t][c][k] = p.to_json()
 
-    # papers['conference'] = papers.get('conference', []) + papers.get('Conference', [])
-    # if 'Conference' in papers:
-    #     del papers['Conference']
-
     os.makedirs(os.path.dirname(openreview_path), exist_ok=True)
     with open(openreview_path, "w", encoding="utf-8") as json_file:
         json.dump(papers, json_file, indent=4)

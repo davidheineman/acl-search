@@ -22,24 +22,37 @@ def preprocess_openreview(openreview_path):
             # raise RuntimeError(conf_entry)
 
             try:
-                bibtex = conf_entry['content']['_bibtex']
-                bibkey = bibtex.split('{')[1].split(',')[0].replace('\n', '')
+                bibtex = conf_entry['content'].get('_bibtex', '') # some failures
+                if bibtex != '':
+                    bibkey = bibtex.split('{')[1].split(',')[0].replace('\n', '')
+                # else:
+                #     raise ValueError(conf_entry)
 
-                venue = conf_entry['content']['venue']
-                venueid = conf_entry['content']['venueid'].split('.cc')[0]
+                venue = conf_entry['content'].get('venue', 'Submitted')
+                venueid = conf_entry['content'].get('venueid')
+                if venueid: venueid = venueid.split('.cc')[0]
+
+                # if int(year) == 2019:
+                #     raise RuntimeError(conf_entry)
 
                 if 'Submitted' in venue:
                     venue_type = 'rejected'
-                elif 'notable top 25%' in venue:
+                    skipped += 1
+                    continue
+                elif 'Spotlight' in venue or 'notable top 25%' in venue:
                     venue_type = 'spotlight'
-                elif 'notable top 5%' in venue:
+                elif 'Oral' in venue or 'notable top 5%' in venue:
                     venue_type = 'oral'
-                elif 'Accept' in venue:
+                elif 'Accept' in venue or 'poster' in venue.lower():
                     venue_type = 'poster'
+                elif 'Invite' in venue:
+                    venue_type = 'invite'
+                elif len(venue.split(' ')) == 2: 
+                    venue_type = 'poster' # no type specified (e.g., "ICLR 2020")
                 else:
-                    venue_type = venue.split(' ')[2].lower()
+                    raise ValueError(venue_type)
 
-                assert venue_type in ['spotlight', 'oral', 'poster', 'invite', 'rejected'], venue_type
+                assert venue_type in ['spotlight', 'oral', 'poster', 'invite', 'rejected'], (venue, venue_type)
 
                 formatted_entry = {
                     'title':    conf_entry['content']['title'],
@@ -51,7 +64,7 @@ def preprocess_openreview(openreview_path):
                     # 'TL;DR':    conf_entry['content']['TL;DR'], # some failures
                     'venue':    venue,
                     'venueid':  venueid,
-                    '_bibtex':  bibtex, # some failures
+                    '_bibtex':  bibtex,
                     '_bibkey':  bibkey,
                     'invitation': conf_entry['invitation'],
                     'venue_type': venue_type,
@@ -61,7 +74,7 @@ def preprocess_openreview(openreview_path):
                 dataset += [formatted_entry]
             except KeyError as e:
                 skipped += 1
-                # print(e)
+                print((e, conf_entry))
 
         print(f'Processed {len(conf_entries)-skipped} / {len(conf_entries)} entries for {conf_name}')
 
@@ -72,7 +85,7 @@ def main():
     dataset = []
 
     # 1) Pre-process the ACL anthology
-    dataset += preprocess_acl(ANTHOLOGY_PATH)
+    # dataset += preprocess_acl(ANTHOLOGY_PATH)
 
     # 2) Pre-process OpenReview
     if not os.path.exists(OPENREVIEW_PATH):
