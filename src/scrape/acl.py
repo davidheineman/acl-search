@@ -114,7 +114,7 @@ def get_venue_type(year: int, url: str, venueid: str, title: str):
             _type = 'workshop'
         elif not any(venue in venueid for venue in ['aacl', 'naacl', 'acl', 'emnlp', 'eacl', 'tacl']):
             _type = 'workshop'
-        elif 'tacl' in venueid or 'cl' in venueid: _type = 'journal'
+        elif 'tacl' in venueid: _type = 'journal' # or 'cl' == venueid
         elif 'srw' in venueid: _type = 'workshop'
         elif 'short' in venueid: _type = 'short'
         elif 'demo' in venueid: _type = 'demo'
