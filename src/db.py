@@ -36,7 +36,7 @@ def create_database():
         bibtex TEXT(12800), 
         bibkey VARCHAR(100), 
         invitation VARCHAR(100), 
-        venue_type VARCHAR(150),
+        venue_type VARCHAR(150)
     )
     """)
 

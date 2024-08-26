@@ -104,11 +104,10 @@ To see an example of search, visit:
         - Add a dropdown under the "Workshop" box to select specific workshops
 
     - On search quality
-        - Only includes ACL articles with abstracts (mostly post-2019)
-        - Only includes ICLR 2021-2023, NeurIPS 2021-2022. Fix this.
-        - Include the title in the indexing
+        - Only includes ICLR 2020-, NeurIPS 2020-, ICML 2023-. Fix this.
 
     - On indexing
+        - Create a "download_acl()" function
         - Make indexing code better 
             (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
             - Fix "sanity check" in index.py
