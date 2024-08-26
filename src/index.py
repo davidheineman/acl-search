@@ -58,7 +58,8 @@ def main():
     # dataset = dataset[:5000] # 5K in 48s/iter on 2 A40s (67K in 2hr)
     
     # Get the abstracts + titles for indexing
-    collection = [e['title'] + '\n\n' + e['abstract'] for e in dataset]
+    collection = [e.get('title', '') + '\n\n' + e.get('abstract', '') for e in dataset]
+    assert all(len(c) > 2 for c in collection)
 
     # Run ColBERT indexer
     index_anthology(collection, index_name=INDEX_NAME)

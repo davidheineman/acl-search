@@ -103,6 +103,10 @@ def main():
         download_openreview(OPENREVIEW_PATH)
     dataset += preprocess_openreview(OPENREVIEW_PATH)
 
+    for paper in dataset:
+        if paper['abstract'] == None: paper['abstract'] = ''
+        if paper['title'] == None: paper['title'] = ''
+
     # Unfortunately, remove papers without abstracts and titles
     dataset = [paper for paper in dataset if (paper['abstract'] != '' or paper['title'] != '')]
 
