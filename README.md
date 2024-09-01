@@ -84,7 +84,6 @@ To see an example of search, visit:
 - TODO:
     - On UI
         - Add a "last scaped at time X" button, and a ? modal next to the years to explain why it only goes back to 2010
-        - Remove "rejected" button (this isn't scraped for all conferences)
         - Have it auto-select the search when you load the page
         - Make the titles different colors depending on the venue / type
         - Make people's names clickable to their research website
