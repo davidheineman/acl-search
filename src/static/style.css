@@ -257,3 +257,9 @@ input[type="range"]::-moz-range-thumb {
 .range-label {
     text-align: left;
 }
+
+.form-control:focus {
+    border-color: #dc3545;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem #dc35451f;
+}
