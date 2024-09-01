@@ -17,7 +17,14 @@ python src/parse.py
 python src/index.py
 
 # copy results to hf directory
+mkdir -p ../hf
 cp -r index ../hf
 cp data/papers.json ../hf/papers.json
+
+# push changes
+cd ../hf
+git add .
+git commit -m "update index"
+git push
 
 echo "Done!"

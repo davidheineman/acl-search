@@ -160,8 +160,10 @@ def preprocess_openreview(openreview_path):
                 venue = conf_entry['content'].get('venue', 'Submitted')
 
                 venueid = conf_entry['content'].get('venueid')
-                if venueid: 
+                if '.cc' in venueid: 
                     venueid = venueid.split('.cc')[0]
+                elif 'colmweb' in venueid:
+                    venueid = 'COLM'
 
                 # if int(year) == 2019:
                 #     raise RuntimeError(conf_entry)
