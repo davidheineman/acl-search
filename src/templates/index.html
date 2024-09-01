@@ -101,7 +101,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3 text-footer small">ML confs are scraped 2020- and ACL confs are reliably indexed 2019-</div>
+                    <div class="mb-3 text-disclaimer small">ML confs are scraped 2020- and ACL confs are reliably indexed 2019-</div>
 
                     <div class="mb-3 text-footer small footer">by <a class="text-footer-a"
                             href="https://davidheineman.com">david</a> (<a class="text-footer-a"
@@ -109,8 +109,7 @@
                 </div>
                 <div class="col-md-9 search-container">
                     <div class="search-bar-container">
-                        <input type="text" class="form-control" id="query" name="query"
-                            placeholder="Information is the resolution of uncertainty..." required>
+                        <input type="text" class="form-control" id="query" name="query" required>
                         <button type="submit" class="btn btn-primary" form="searchForm">search</button>
                     </div>
                     <div id="spinner" class="spinner-border" style="display: none" role="status">
@@ -319,6 +318,8 @@
             if (query) {
                 document.getElementById('query').value = query;
                 performSearch(document.getElementById('searchForm'));
+            } else {
+                document.getElementById('query').focus();
             }
         });
     </script>
