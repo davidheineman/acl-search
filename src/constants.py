@@ -9,6 +9,7 @@ INDEX_ROOT = os.getenv("INDEX_ROOT", os.path.dirname(os.path.dirname(os.path.abs
 INDEX_PATH = os.path.join(INDEX_ROOT, INDEX_NAME)
 DATA_PATH  = os.path.join(INDEX_ROOT, 'data')
 
+ANTHOLOGY_RAW_PATH = os.path.join(DATA_PATH, 'acl_data')
 ANTHOLOGY_BIB_PATH = os.path.join(DATA_PATH, 'anthology.bib')
 ANTHOLOGY_PATH  = os.path.join(DATA_PATH, 'anthology.json')
 OPENREVIEW_PATH = os.path.join(DATA_PATH, 'openreview.json')

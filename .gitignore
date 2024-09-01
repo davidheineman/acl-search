@@ -14,3 +14,4 @@ anthology
 acl_data
 data/
 *.log
+load_test.py

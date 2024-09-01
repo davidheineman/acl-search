@@ -1,36 +1,21 @@
 ## ACL Search
 
-Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/) (or any .bib file!).
+Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/)  and [OpenReview conferences](https://openreview.net/), or any .bib file. Check out the [live demo](https://acl-search.fly.dev/).
 
 <div align="center">
     <img src="./src/static/demo.jpg" width="600" />
 </div>
 
-## Setup
+## Quick Setup
 
-**Setup ColBERT**
 ```sh
+# (optional): conda install -y -n aclsearch python=3.10
 git clone https://github.com/davidheineman/acl-search
-
-# install dependencies
-# conda install -y -n aclsearch python=3.10 # (torch==1.13.1 required)
-pip install -r requirements.txt
+pip install -r requirements.txt 
+python src/server.py
 ```
 
-**Search with ColBERT**
-
-```sh
-# start flask server
-python server.py
-
-# or start a production API endpoint
-gunicorn -w 4 -b 0.0.0.0:8080 server:app
-
-# Then visit:
-# http://localhost:8080
-# or use the API:
-# http://localhost:8080/api/search?query=Information retrevial with BERT
-```
+## More Features
 
 **(Optional) Parse & Index the Anthology**
 
@@ -44,18 +29,25 @@ echo "[email]\n[password]" > .openreview
 python src/scrape/openrev.py
 
 # pull from acl anthology
-git clone https://github.com/acl-org/acl-anthology src/acl-anthology
-cp -r src/acl-anthology/bin/anthology src/scrape/anthology
-cp -r src/acl-anthology/data src/scrape/acl_data
-rm -rf src/acl-anthology
-python src/scrape/acl.py # parse acl_data/ -> .json
+python src/scrape/acl.py
 
 # create unified dataset
-python src/parse.py 
+python src/parse.py
 
 # index with ColBERT 
-# (note sometimes there is a silent failure if the CPP extensions do not exist)
+# (note: sometimes there is a silent failure if the CPP extensions do not exist)
 python src/index.py
+```
+
+**Deploy Web Server**
+```sh
+# Start a production API endpoint
+gunicorn -w 4 -b 0.0.0.0:8080 server:app
+
+# Then visit:
+# http://localhost:8080
+# or use the API:
+# http://localhost:8080/api/search?query=Information retrevial with BERT
 ```
 
 **Deploy as a Docker App**
@@ -91,7 +83,11 @@ To see an example of search, visit:
 
 - TODO:
     - On UI
+        - Add a "last scaped at time X" button, and a ? modal next to the years to explain why it only goes back to 2010
+        - Remove "rejected" button (this isn't scraped for all conferences)
+        - Have it auto-select the search when you load the page
         - Make the titles different colors depending on the venue / type
+        - Make people's names clickable to their research website
 
         - Single click "copy" for bib key
         - Colors: make the colors resemble the ACL page much closer
@@ -105,9 +101,11 @@ To see an example of search, visit:
 
     - On search quality
         - Only includes ICLR 2020-, NeurIPS 2020-, ICML 2023-. Fix this.
+            - Add workshops (see `openreview_confs.json`)
+        - Pre-2020 ACL papers still not correctly organized?
+        - More papers here? https://github.com/mlresearch/mlresearch.github.io?tab=readme-ov-file
 
     - On indexing
-        - Create a "download_acl()" function
         - Make indexing code better 
             (currently, the setup involves manually copying the CPP files becuase there is a silent failure, this also should be possible to do on Google Collab, or even MPS)
             - Fix "sanity check" in index.py
@@ -116,4 +114,5 @@ To see an example of search, visit:
 
     - On deployment
         - Reduce batch batch size to help RAM usage (https://fly.io/docs/about/pricing/#started-fly-machines)
+        - Memory errors: In `load_test.py`, if we submit more than 5 requests simultaneously, it triggers an OOM error. We need the server to have a queue to elegantly handle simultanous queries so it never runs out of memory (also batch the inputs to handle multiple requests at once)
  -->

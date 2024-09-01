@@ -99,15 +99,15 @@ def init_client(OPENREVEW_SECRET_PATH=os.path.join(INDEX_ROOT, ".openreview")):
 
 
 def download_openreview(openreview_path):
-    client1, client2 = init_client()
+    clientv1, clientv2 = init_client()
 
     only_accepted = True
 
     years = list(range(2013, 2026))
-    conferences = ["NeurIPS", "ICLR", "ICML"] # https://openreview.net/group?id=NeurIPS.cc
+    conferences = ["NeurIPS", "ICLR", "ICML", "colmweb"] # https://openreview.net/group?id=NeurIPS.cc
     groups = ["conference"]
 
-    venues = get_venues(client1, conferences, years)
+    venues = get_venues(clientv1, conferences, years)
     
     print(venues)
     
@@ -115,7 +115,7 @@ def download_openreview(openreview_path):
     
     print(grouped_venues)
     
-    papers = get_papers([client1, client2], grouped_venues, only_accepted)
+    papers = get_papers([clientv1, clientv2], grouped_venues, only_accepted)
 
     for i, t in enumerate(papers):
         for j, c in enumerate(papers[t]):
@@ -125,6 +125,98 @@ def download_openreview(openreview_path):
     os.makedirs(os.path.dirname(openreview_path), exist_ok=True)
     with open(openreview_path, "w", encoding="utf-8") as json_file:
         json.dump(papers, json_file, indent=4)
+
+
+def preprocess_openreview(openreview_path):
+    dataset = []
+
+    with open(openreview_path, 'r', encoding='utf-8') as f:
+        openreview = json.loads(f.read())
+
+    openreview = openreview['conference']
+
+    for conf_name, conf_entries in openreview.items():
+        skipped = 0
+
+        if 'COLM' in conf_name:
+            year = conf_name.split('/')[2]
+            area = 'nlp'
+        else:
+            year = conf_name.split('/')[1]
+            area = 'ml'
+
+        for conf_entry in conf_entries:
+            try:
+                for k, v in conf_entry['content'].items():
+                    if isinstance(v, dict) and 'value' in v.keys():
+                        conf_entry['content'][k] = v['value']
+
+                bibtex = conf_entry['content'].get('_bibtex', '') # some failures
+                if bibtex != '':
+                    bibkey = bibtex.split('{')[1].split(',')[0].replace('\n', '')
+                # else:
+                #     raise ValueError(conf_entry)
+
+                venue = conf_entry['content'].get('venue', 'Submitted')
+
+                venueid = conf_entry['content'].get('venueid')
+                if venueid: 
+                    venueid = venueid.split('.cc')[0]
+
+                # if int(year) == 2019:
+                #     raise RuntimeError(conf_entry)
+
+                if venue == 'COLM':
+                    venue_type = 'colm'
+                elif 'Submitted' in venue:
+                    venue_type = 'rejected'
+                    skipped += 1
+                    continue
+                elif 'spotlight' in venue.lower() or 'notable top 25%' in venue:
+                    venue_type = 'spotlight'
+                elif 'oral' in venue.lower() or 'notable top 5%' in venue:
+                    venue_type = 'oral'
+                elif 'accept' in venue.lower() or 'poster' in venue.lower():
+                    venue_type = 'poster'
+                elif 'invite' in venue.lower():
+                    venue_type = 'invite'
+                elif len(venue.split(' ')) == 2: 
+                    venue_type = 'poster' # no type specified (e.g., "ICLR 2020")
+                else:
+                    raise ValueError(venue)
+
+                assert venue_type in ['colm', 'spotlight', 'oral', 'poster', 'invite', 'rejected'], (venue, venue_type)
+
+                if 'invitation' in conf_entry:
+                    invitation = conf_entry['invitation']
+                elif 'invitations' in conf_entry:
+                    invitation = str(conf_entry['invitations'])
+
+                formatted_entry = {
+                    'title':    conf_entry['content']['title'],
+                    'abstract': conf_entry['content'].get('abstract'),
+                    'year':     int(year),
+                    'url':      'https://openreview.net/forum?id=' + conf_entry['id'], # 'forum', 'original'
+                    'pdf':      'https://openreview.net' + conf_entry['content']['pdf'],
+                    'authors':  conf_entry['content']['authors'],
+                    # 'TL;DR':    conf_entry['content']['TL;DR'], # some failures
+                    'venue':    venue,
+                    'venueid':  venueid,
+                    '_bibtex':  bibtex,
+                    '_bibkey':  bibkey,
+                    'invitation': invitation,
+                    'venue_type': venue_type,
+                    'area': area
+                }
+
+                dataset += [formatted_entry]
+            except KeyError as e:
+                skipped += 1
+                print((e, conf_entry))
+
+        print(f'Processed {len(conf_entries)-skipped} / {len(conf_entries)} entries for {conf_name}')
+
+    return dataset
 
 
 if __name__ == "__main__": download_openreview(OPENREVIEW_PATH)

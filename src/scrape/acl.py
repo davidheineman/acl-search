@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, shutil
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(CURRENT_DIR))
 sys.path.append(CURRENT_DIR)
@@ -12,15 +12,49 @@ os.environ['LC_ALL'] = 'en_US.UTF-8'
 import json
 from tqdm import tqdm
 
-from constants import ANTHOLOGY_PATH
-from anthology import Anthology, Paper, PersonName
+from constants import ANTHOLOGY_PATH, ANTHOLOGY_RAW_PATH
+
+ANTHOLOGY_REPO = 'https://github.com/acl-org/acl-anthology'
 
 
-ANTHOLOGY_RAW_PATH = os.path.join(CURRENT_DIR, 'acl_data')
+def download_acl(anthology_path):
+    """
+    Download anthology from git repo. Perform this same function with shell:
+      git clone https://github.com/acl-org/acl-anthology src/acl-anthology
+      cp -r src/acl-anthology/bin/anthology src/scrape/anthology
+      cp -r src/acl-anthology/data src/scrape/acl_data
+      rm -rf src/acl-anthology
+    """
+    import git
+
+    tmp = os.path.join(CURRENT_DIR, 'tmp')
+
+    print(f'Cloning {ANTHOLOGY_REPO}...')
+    if not os.path.exists(tmp):
+        git.Repo.clone_from(ANTHOLOGY_REPO, tmp)
+
+    # install anthology library from source
+    src  = os.path.join(tmp, 'bin', 'anthology')
+    dest = os.path.join(CURRENT_DIR, 'anthology')
+    if os.path.exists(dest):
+        shutil.rmtree(dest, ignore_errors=True)
+    shutil.copytree(src, dest)
+
+    # copy data to data folder
+    src  = os.path.join(tmp, 'data')
+    dest = anthology_path
+    if os.path.exists(dest):
+        shutil.rmtree(dest, ignore_errors=True)
+    shutil.copytree(src, dest)
+
+    # cleanup
+    shutil.rmtree(tmp)
 
 
-def preprocess_acl(anthology_path):
-    anthology = Anthology(importdir=ANTHOLOGY_RAW_PATH)
+def preprocess_acl(anthology_raw_path, anthology_path):
+    from anthology import Anthology, Paper, PersonName
+
+    anthology = Anthology(importdir=anthology_raw_path)
 
     dataset = []
     no_abs = 0
@@ -151,4 +185,6 @@ def get_venue_type(year: int, url: str, venueid: str, title: str):
     return _type
 
 
-if __name__ == '__main__': preprocess_acl(ANTHOLOGY_PATH)
+if __name__ == '__main__': 
+    download_acl(ANTHOLOGY_RAW_PATH)
+    preprocess_acl(ANTHOLOGY_RAW_PATH, ANTHOLOGY_PATH)
