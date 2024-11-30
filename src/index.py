@@ -3,6 +3,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"  # Prevents deadlocks in ColBERT 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"     # Allows multiple libraries in OpenMP runtime. This can cause unexected behavior, but allows ColBERT to work
 
 import json
+import torch
 
 from constants import INDEX_NAME, DATASET_PATH
 
@@ -16,7 +17,11 @@ checkpoint = 'colbert-ir/colbertv2.0' # ColBERT model to use
 
 
 def index_anthology(collection, index_name):
-    with Run().context(RunConfig(nranks=2, experiment='notebook')): # nranks specifies the number of GPUs to use
+    nranks = torch.cuda.device_count()
+    if nranks == 0:
+        raise RuntimeError(f'Detected {nranks} GPUs. GPUs with CUDA is required to run ColBERT.')
+    
+    with Run().context(RunConfig(nranks=nranks, experiment='notebook')): # nranks specifies the number of GPUs to use
         config = ColBERTConfig(
             doc_maxlen=doc_maxlen, 
             nbits=nbits, 

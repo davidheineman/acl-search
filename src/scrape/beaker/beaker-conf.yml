@@ -1,0 +1,25 @@
+version: v2
+budget: ai2/oe-eval
+description: colbert-index
+tasks:
+  - name: index
+    image:
+      beaker: davidh/acl-search
+    envVars:
+      - name: HF_TOKEN
+        secret: HF_TOKEN
+    result:
+      path: /output
+    resources:
+      gpuCount: 1
+    context:
+      priority: low
+      preemptible: true
+    constraints:
+      cluster:
+        - ai2/general-cirrascale # no weka
+        - ai2/pluto-cirrascale # no weka
+        - ai2/jupiter-cirrascale-2 # h100
+        - ai2/saturn-cirrascale # a100
+        - ai2/allennlp-elara-cirrascale # h100
+        - ai2/neptune-cirrascale # a100

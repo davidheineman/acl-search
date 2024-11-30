@@ -45,7 +45,7 @@ def group_venues(venues: list[str], bins: list[str]) -> dict:
 def get_grouped_venue_papers(clients: list[Client], grouped_venue: dict, only_accepted: bool=True):
     papers = {}
     for venue in grouped_venue:
-        print(f'Getting: {venue}')
+        print(f'Pulling from Openreview: {venue}')
         papers[venue] = []
         for client in clients:
             if len(papers[venue]) > 0: continue

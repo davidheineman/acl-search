@@ -12,7 +12,11 @@ Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/
 # (optional): conda install -y -n aclsearch python=3.10
 git clone https://github.com/davidheineman/acl-search
 pip install -r requirements.txt 
-python src/server.py
+python src/server.py # (this will download a pre-built index!)
+
+# (getting pip errors?)
+sudo apt-get update
+sudo apt-get install -y pkg-config libsentencepiece-dev
 ```
 
 ## More Features
@@ -25,7 +29,7 @@ This step allows indexing the anthology manually. This can be skipped, since the
 
 ```sh
 # pull from openreview
-echo "[email]\n[password]" > .openreview
+echo -e "[email]\n[password]" > .openreview
 python src/scrape/openrev.py
 
 # pull from acl anthology
@@ -41,7 +45,7 @@ python src/index.py
 
 **Deploy Web Server**
 ```sh
-# Start a production API endpoint
+# Start an API endpoint
 gunicorn -w 4 -b 0.0.0.0:8080 server:app
 
 # Then visit:
@@ -63,6 +67,24 @@ docker run -p 8080:8080 ghcr.io/davidheineman/acl-search:main
 # Lauch it as a web service!
 brew install flyctl
 fly launch
+```
+
+**Update Index on HF**
+```sh
+# clone from HF
+git clone https://huggingface.co/davidheineman/colbert-acl
+mv colbert-acl hf
+
+# copy results to hf directory
+mkdir -p ../hf
+cp -r index ../hf
+cp data/papers.json ../hf/papers.json
+
+# push changes
+cd ../hf
+git add .
+git commit -m "update index"
+git push
 ```
 
 ## Example notebooks

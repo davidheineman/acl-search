@@ -5,9 +5,14 @@ sys.path.append(CURRENT_DIR)
 
 import locale
 
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-os.environ['LANG'] = 'en_US.UTF-8'
-os.environ['LC_ALL'] = 'en_US.UTF-8'
+try:
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    os.environ['LANG'] = 'en_US.UTF-8'
+    os.environ['LC_ALL'] = 'en_US.UTF-8'
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+    os.environ['LANG'] = 'C.UTF-8'
+    os.environ['LC_ALL'] = 'C.UTF-8'
 
 import json
 from tqdm import tqdm
@@ -29,8 +34,8 @@ def download_acl(anthology_path):
 
     tmp = os.path.join(CURRENT_DIR, 'tmp')
 
-    print(f'Cloning {ANTHOLOGY_REPO}...')
     if not os.path.exists(tmp):
+        print(f'Cloning {ANTHOLOGY_REPO}...')
         git.Repo.clone_from(ANTHOLOGY_REPO, tmp)
 
     # install anthology library from source

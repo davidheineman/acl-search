@@ -3,7 +3,7 @@ FROM python:3.10
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && pip cache purge
 
 # Copy ColBERT files that aren't downloaded properly
 COPY ./src/extras/segmented_maxsim.cpp /usr/local/lib/python3.10/site-packages/colbert/modeling/segmented_maxsim.cpp
