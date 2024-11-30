@@ -71,20 +71,19 @@ fly launch
 
 **Update Index on HF**
 ```sh
-# clone from HF
-git clone https://huggingface.co/davidheineman/colbert-acl
-mv colbert-acl hf
+# For a full pipeline to update an index, see: src/scrape/beaker/index.sh
 
-# copy results to hf directory
-mkdir -p ../hf
-cp -r index ../hf
-cp data/papers.json ../hf/papers.json
+# Build and deploy container for auto-updating:
+docker build -t acl-search -f src/scrape/beaker/Dockerfile .
+docker run -it -e HF_TOKEN=$HF_TOKEN acl-search # (Optional) test it out!
 
-# push changes
-cd ../hf
-git add .
-git commit -m "update index"
-git push
+# Run on slurm
+sbatch src/scrape/slurm.sh
+
+# Run on beaker
+beaker image delete davidh/acl-search
+beaker image create --name acl-search acl-search
+beaker experiment create src/scrape/beaker/beaker-conf.yml
 ```
 
 ## Example notebooks

@@ -4,6 +4,7 @@ ENV CUDA_HOME=/opt/conda
 
 WORKDIR /app
 
+# Install sentencepiece deps
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libsentencepiece-dev \
@@ -36,4 +37,4 @@ CMD ["./src/scrape/beaker/index.sh"]
 # # docker run --rm acl-search
 # beaker image delete davidh/acl-search
 # beaker image create --name acl-search acl-search
-# beaker beaker create src/scrape/beaker/beaker-conf.yml
+# beaker experiment create src/scrape/beaker/beaker-conf.yml

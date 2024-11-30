@@ -2,6 +2,12 @@ FROM python:3.10
 
 WORKDIR /app
 
+# Install sentencepiece deps
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libsentencepiece-dev \
+    && apt-get clean
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && pip cache purge
 
