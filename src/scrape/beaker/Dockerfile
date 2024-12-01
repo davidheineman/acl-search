@@ -1,11 +1,15 @@
-FROM ghcr.io/allenai/pytorch:2.4.0-cuda12.1-python3.11
+FROM ghcr.io/allenai/cuda:12.1-cudnn8-dev-ubuntu20.04-v1.2.118
 
-ENV CUDA_HOME=/opt/conda
+# Set environment variables for CUDA
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 WORKDIR /app
 
-# Install sentencepiece deps
+# Install sentencepiece deps (and git lfs)
 RUN apt-get update && apt-get install -y \
+    git-lfs \
     pkg-config \
     libsentencepiece-dev \
     && apt-get clean
@@ -19,7 +23,7 @@ COPY ./src/extras/decompress_residuals.cpp /opt/conda/lib/python3.11/site-packag
 COPY ./src/extras/filter_pids.cpp /opt/conda/lib/python3.11/site-packages/colbert/search/filter_pids.cpp
 COPY ./src/extras/segmented_lookup.cpp /opt/conda/lib/python3.11/site-packages/colbert/search/segmented_lookup.cpp
 
-# Copy repo
+# Copy repo, openreview creds
 COPY . .
 COPY .openreview .
 
@@ -32,7 +36,7 @@ CMD ["./src/scrape/beaker/index.sh"]
 
 # docker build -t acl-search -f src/scrape/beaker/Dockerfile .
 # docker run -it acl-search
-# docker run -it -e HF_TOKEN=$HF_TOKEN acl-search 
+# docker run -it -e HF_TOKEN=$HF_TOKEN acl-search
 # docker run -it --gpus '"device=0"' -e HF_TOKEN=$HF_TOKEN acl-search
 # # docker run --rm acl-search
 # beaker image delete davidh/acl-search

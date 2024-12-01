@@ -14,9 +14,16 @@ git clone https://github.com/davidheineman/acl-search
 pip install -r requirements.txt 
 python src/server.py # (this will download a pre-built index!)
 
-# (getting pip errors?)
+# getting pip errors? (install sentencepiece deps)
 sudo apt-get update
 sudo apt-get install -y pkg-config libsentencepiece-dev
+
+# running on CUDA? (fix broken package path)
+INSTALL_PATH=PATH_TO_YOUR_PYTHON_INSTALL # e.g., /root/ai2/miniconda3/envs/acl_search/lib/python3.10
+cp ./src/extras/segmented_maxsim.cpp $INSTALL_PATH/site-packages/colbert/modeling/segmented_maxsim.cpp
+cp ./src/extras/decompress_residuals.cpp $INSTALL_PATH/site-packages/colbert/search/decompress_residuals.cpp
+cp ./src/extras/filter_pids.cpp $INSTALL_PATH/site-packages/colbert/search/filter_pids.cpp
+cp ./src/extras/segmented_lookup.cpp $INSTALL_PATH/site-packages/colbert/search/segmented_lookup.cpp
 ```
 
 ## More Features
@@ -71,14 +78,13 @@ fly launch
 
 **Update Index on HF**
 ```sh
-# For a full pipeline to update an index, see: src/scrape/beaker/index.sh
+# Download a fresh set of papers, index and push to hf:
+chmod +x src/scrape/beaker/index.sh
+./src/scrape/beaker/index.sh
 
 # Build and deploy container for auto-updating:
 docker build -t acl-search -f src/scrape/beaker/Dockerfile .
 docker run -it -e HF_TOKEN=$HF_TOKEN acl-search # (Optional) test it out!
-
-# Run on slurm
-sbatch src/scrape/slurm.sh
 
 # Run on beaker
 beaker image delete davidh/acl-search

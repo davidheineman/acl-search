@@ -60,7 +60,7 @@ def main():
     with open(DATASET_PATH, 'r', encoding='utf-8') as f:
         dataset = json.loads(f.read())
 
-    # dataset = dataset[:5000] # 5K in 48s/iter on 2 A40s (67K in 2hr)
+    # dataset = dataset[:100] # 5K in 48s/iter on 2 A40s (67K in 2hr)
     
     # Get the abstracts + titles for indexing
     collection = [e.get('title', '') + '\n\n' + e.get('abstract', '') for e in dataset]
