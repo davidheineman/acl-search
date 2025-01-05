@@ -8,6 +8,12 @@ RUN apt-get update && apt-get install -y \
     libsentencepiece-dev \
     && apt-get clean
 
+# Download ACL Anthology deps and install
+RUN curl -s https://raw.githubusercontent.com/acl-org/acl-anthology/master/bin/requirements.txt | \
+    grep -v '-e python/' > acl_requirements.txt && \
+    pip install --no-cache-dir -r acl_requirements.txt && \
+    pip cache purge
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && pip cache purge
 

@@ -16,4 +16,3 @@ openreview-py
 bibtexparser
 tqdm
 gitpython
--r https://raw.githubusercontent.com/acl-org/acl-anthology/master/bin/requirements.txt
