@@ -82,6 +82,7 @@ docker run -p 8080:8080 ghcr.io/davidheineman/acl-search:main
 brew install flyctl
 fly launch
 
+fly scale vm shared-cpu-2x # scale up cpu!
 fly scale memory 4096 # scale up memory!
 ```
 

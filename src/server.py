@@ -158,6 +158,17 @@ Please provide a concise answer."""
         return jsonify({'error': 'Failed to process request'}), 500
 
 
+def initalize_backend():
+    with app.app_context():
+        global colbert
+        download_index_from_hf()
+        create_database()
+        colbert = ColBERT(index_path=INDEX_PATH)
+        # Test queries
+        print(colbert.search('text simplificaiton'))
+        print(api_search_query("text simplification")['topk'][:5])
+
+
 if __name__ == "__main__":
     """
     Example usage:
@@ -165,12 +176,6 @@ if __name__ == "__main__":
     http://localhost:8080/api/colbert?query=Information retrevial with BERT
     http://localhost:8080/api/search?query=Information retrevial with BERT
     """
-    download_index_from_hf()
-    create_database()
-    global colbert
-    colbert = ColBERT(index_path=INDEX_PATH)
-    print(colbert.search('text simplificaiton'))
-    print(api_search_query("text simplification")['topk'][:5])
+    initalize_backend()
     extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
-
-    app.run("0.0.0.0", PORT, debug=True, extra_files=extra_files)
+    app.run("0.0.0.0", PORT, debug=False, extra_files=extra_files)
