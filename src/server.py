@@ -187,6 +187,8 @@ if __name__ == "__main__":
     http://localhost:8080/api/colbert?query=Information retrevial with BERT
     http://localhost:8080/api/search?query=Information retrevial with BERT
     """
+    init_app()
+
     # Watch web dirs for changes
     extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
 
