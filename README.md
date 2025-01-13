@@ -81,6 +81,8 @@ docker run -p 8080:8080 ghcr.io/davidheineman/acl-search:main
 # Lauch it as a web service!
 brew install flyctl
 fly launch
+
+fly scale memory 4096 # scale up memory!
 ```
 
 **Update Index on HF**
