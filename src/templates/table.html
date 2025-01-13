@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Table</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='table.ico') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='table.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <!-- Search Bar -->
+        <div class="header">
+            <div class="row mb-4 px-4">
+                <div class="col d-flex align-items-center">
+                    <h2 class="mb-0 me-1" style="min-width: 180px;">paper table</h2>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search papers...">
+                    <button class="btn btn-primary ms-2" onclick="performSearch()">search</button>
+                    <button class="btn btn-secondary btn-light ms-2" onclick="toggleAllCells()">➕</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="paperTable">
+                    <thead>
+                        <tr id="headerRow">
+                            <th>Title</th>
+                            <!-- Dynamic columns will be added here -->
+                            <th class="add-column-btn" onclick="addColumn()">+</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Paper rows will be populated dynamically -->
+                    </tbody>
+                    <tfoot>
+                        <tr id="loadMoreRow" style="display: none;" class="load-more-row">
+                            <td colspan="100%" class="text-center">
+                                <button class="btn btn-secondary" onclick="loadMoreResults()">load more results</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cellSpinnerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+
+        let questions = [
+            'Does this paper introduce a new dataset?'
+        ];
+
+        let currentPapers = [];
+        let displayedPapers = 0;
+        const PAPERS_PER_PAGE = 10;
+
+        const emptyDragImage = document.createElement('div');
+        emptyDragImage.style.display = 'none';
+        document.body.appendChild(emptyDragImage);
+
+        let draggedHeader = null;
+        let draggedRow = null;
+        let lastHoveredRow = null;
+
+        function initializeDefaultColumns() {
+            const headerRow = document.getElementById('headerRow');
+            const lastCell = headerRow.lastElementChild;
+
+            questions.forEach((question, index) => {
+                const newHeader = document.createElement('th');
+                newHeader.textContent = question;
+                newHeader.style.width = '300px';
+                makeHeaderEditable(newHeader, index);
+                headerRow.insertBefore(newHeader, lastCell);
+            });
+        }
+
+        function makeHeaderEditable(headerCell, questionIndex) {
+            headerCell.classList.add('draggable-header');
+            headerCell.setAttribute('draggable', 'true');
+
+            headerCell.addEventListener('dragstart', handleDragStart);
+            headerCell.addEventListener('dragover', handleDragOver);
+            headerCell.addEventListener('drop', handleDrop);
+            headerCell.addEventListener('dragend', handleDragEnd);
+
+            headerCell.addEventListener('click', function(e) {
+                // Don't make header editable if clicking the resize handle
+                if (e.target.classList.contains('resize-handle')) {
+                    return;
+                }
+                
+                const currentText = headerCell.textContent;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentText;
+                input.className = 'form-control form-control-col';
+                input.style.width = '100%';
+
+                input.addEventListener('blur', async function () {
+                    const newQuestion = input.value.trim();
+                    if (newQuestion && newQuestion !== currentText) {
+                        questions[questionIndex] = newQuestion;
+                        headerCell.textContent = newQuestion;
+                        
+                        // Add back the resize handle after updating text
+                        const resizeHandle = document.createElement('div');
+                        resizeHandle.className = 'resize-handle';
+                        headerCell.appendChild(resizeHandle);
+                        resizeHandle.addEventListener('mousedown', initResize);
+                        
+                        updateURLParams();
+
+                        const rows = document.querySelectorAll('#tableBody tr');
+                        const promises = [];
+
+                        for (let i = 0; i < rows.length; i++) {
+                            const row = rows[i];
+                            const cell = row.children[questionIndex + 1];
+                            const paper = currentPapers[i];
+
+                            cell.innerHTML = cellSpinnerHTML;
+
+                            promises.push(
+                                queryLLM(paper, newQuestion)
+                                    .then(answer => {
+                                        const innerDiv = document.createElement('div');
+                                        innerDiv.textContent = answer;
+                                        cell.innerHTML = ''; // Clear the spinner
+                                        cell.appendChild(innerDiv);
+                                        cell.classList.add('selectable', 'collapsed');
+                                        cell.addEventListener('click', toggleCell);
+                                    })
+                                    .catch(() => {
+                                        cell.textContent = 'Error generating response';
+                                    })
+                            );
+                        }
+
+                        await Promise.all(promises);
+                    } else {
+                        headerCell.textContent = currentText;
+                        // Add back the resize handle even when reverting
+                        const resizeHandle = document.createElement('div');
+                        resizeHandle.className = 'resize-handle';
+                        headerCell.appendChild(resizeHandle);
+                        resizeHandle.addEventListener('mousedown', initResize);
+                    }
+                });
+
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    }
+                });
+
+                headerCell.textContent = '';
+                headerCell.appendChild(input);
+                input.focus();
+            });
+
+            // Add resize handle
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            headerCell.appendChild(resizeHandle);
+            
+            // Add resize functionality
+            resizeHandle.addEventListener('mousedown', initResize);
+        }
+
+        function initResize(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const th = e.target.parentElement;
+            const startX = e.pageX;
+            const startWidth = th.offsetWidth;
+            
+            // Disable dragging for all draggable elements during resize
+            const draggableElements = document.querySelectorAll('[draggable="true"]');
+            draggableElements.forEach(el => el.setAttribute('draggable', 'false'));
+            
+            document.body.classList.add('resizing');
+            
+            function onMouseMove(e) {
+                const width = startWidth + (e.pageX - startX);
+                th.style.minWidth = `${width}px`;
+                th.style.width = `${width}px`;
+            }
+            
+            function onMouseUp() {
+                document.body.classList.remove('resizing');
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                
+                // Re-enable dragging for all elements that were previously draggable
+                draggableElements.forEach(el => el.setAttribute('draggable', 'true'));
+            }
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        function addColumn() {
+            const headerRow = document.getElementById('headerRow');
+            const lastCell = headerRow.lastElementChild;
+
+            const newHeader = document.createElement('th');
+            newHeader.textContent = '';
+            makeHeaderEditable(newHeader, questions.length);
+
+            headerRow.insertBefore(newHeader, lastCell);
+
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const newCell = document.createElement('td');
+                newCell.classList.add('selectable', 'collapsed');
+                newCell.addEventListener('click', toggleCell);
+
+                const innerDiv = document.createElement('div');
+                newCell.appendChild(innerDiv);
+
+                row.appendChild(newCell);
+            });
+
+            questions.push('');
+        }
+
+        async function queryLLM(paper, question) {
+            try {
+                const response = await fetch('/api/llm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: paper.title,
+                        abstract: paper.abstract,
+                        pdf_url: paper.pdf,
+                        question: question
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                return data.answer;
+
+            } catch (error) {
+                console.error('Error querying LLM:', error);
+                return 'Error generating response';
+            }
+        }
+
+        async function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            updateURLParams();
+            
+            document.title = searchTerm ? `${searchTerm} - Paper Table` : 'Paper Table';
+
+            try {
+                const tableBody = document.getElementById('tableBody');
+                const loadMoreRow = document.getElementById('loadMoreRow');
+                tableBody.innerHTML = `<tr class="load-more-row"><td colspan="100%" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </td></tr>`;
+                loadMoreRow.style.display = 'none';
+
+                const response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}&venue_type=short&venue_type=main&venue_type=colm&venue_type=oral&venue_type=spotlight&venue_type=poster&start_year=2020&end_year=2024`);
+                if (!response.ok) {
+                    throw new Error('Search request failed');
+                }
+
+                currentPapers = await response.json();
+                displayedPapers = 0;
+
+                tableBody.innerHTML = '';
+
+                await loadMoreResults();
+
+                updateLoadMoreButton();
+                loadMoreRow.style.display = '';
+            } catch (error) {
+                console.error('Error searching papers:', error);
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger">Error performing search</td></tr>';
+            }
+        }
+
+        async function loadMoreResults() {
+            const tableBody = document.getElementById('tableBody');
+            const papersToLoad = currentPapers.slice(displayedPapers, displayedPapers + PAPERS_PER_PAGE);
+
+            for (const paper of papersToLoad) {
+                paper.author = Array.isArray(paper.author) ? paper.author : [paper.author];
+
+                const row = document.createElement('tr');
+
+                const titleCell = document.createElement('td');
+                titleCell.classList.add('drag-handle');
+                titleCell.innerHTML = `
+                    <div class="card card-paper-table">
+                        <div class="row">
+                            <div class="col-1 col-btn">
+                                <div class="d-flex flex-column">
+                                    <a class="btn btn-paper btn-sm mb-1" href="${paper.pdf}" target="_blank" data-toggle="tooltip" data-placement="top" title="Open PDF">
+                                        pdf
+                                    </a>
+                                    <a class="btn btn-paper btn-sm mb-1" href="javascript:void(0);" onclick="copyBibtex('${paper.bibkey}')" data-toggle="tooltip" data-placement="top" title="Copy BibTeX">
+                                        bib
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-11">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a href="${paper.url}" target="_blank">${paper.title}</a></h5>
+                                    <h6 class="card-subtitle mb-1 text-light-authors">${paper.author.join(', ')}</h6>
+                                    <p class="card-subtitle text-light-metadata paper-metadata">
+                                        <strong>${paper.year} / ${paper.venueid} / ${paper.venue_type} </strong> <br>
+                                    </p>
+                                    <div id="abstract-${paper.bibkey}" style="display: none;" class="mt-1">
+                                        <p class="card-text"><small class="text-muted">${paper.abstract}</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                titleCell.setAttribute('draggable', true);
+
+                titleCell.addEventListener('dragstart', handleRowDragStart);
+                titleCell.addEventListener('dragend', handleRowDragEnd);
+                row.appendChild(titleCell);
+
+                for (const question of questions) {
+                    const cell = document.createElement('td');
+                    const innerDiv = document.createElement('div');
+                    innerDiv.innerHTML = cellSpinnerHTML;
+                    cell.appendChild(innerDiv);
+                    cell.classList.add('selectable', 'collapsed');
+                    cell.addEventListener('click', toggleCell);
+                    row.appendChild(cell);
+                }
+
+                const lastCell = document.createElement('td');
+                row.appendChild(lastCell);
+
+                tableBody.appendChild(row);
+            }
+
+            tableBody.addEventListener('dragover', handleRowDragOver);
+            tableBody.addEventListener('drop', handleRowDrop);
+
+            const promises = [];
+            for (let rowIndex = 0; rowIndex < papersToLoad.length; rowIndex++) {
+                const paper = papersToLoad[rowIndex];
+                const row = tableBody.children[rowIndex + displayedPapers];
+
+                for (let colIndex = 0; colIndex < questions.length; colIndex++) {
+                    const question = questions[colIndex];
+                    const cell = row.children[colIndex + 1];
+                    if (question && question.trim() !== '') {
+                        promises.push(
+                            queryLLM(paper, question)
+                                .then(answer => {
+                                    const innerDiv = document.createElement('div');
+                                    innerDiv.textContent = answer;
+                                    cell.innerHTML = ''; // Clear the spinner
+                                    cell.appendChild(innerDiv);
+                                    cell.classList.add('selectable', 'collapsed');
+                                    cell.addEventListener('click', toggleCell);
+                                })
+                        );
+                    }
+                }
+            }
+
+            await Promise.all(promises);
+
+            displayedPapers += papersToLoad.length;
+            updateLoadMoreButton();
+        }
+
+        function updateLoadMoreButton() {
+            const loadMoreRow = document.getElementById('loadMoreRow');
+            if (!loadMoreRow) return;
+
+            loadMoreRow.style.display = displayedPapers < currentPapers.length ? '' : 'none';
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function updateURLParams() {
+            const params = new URLSearchParams();
+
+            const searchQuery = document.getElementById('searchInput').value.trim();
+            if (searchQuery) {
+                params.set('q', searchQuery);
+            }
+
+            questions.forEach((q, index) => {
+                if (q.trim()) {
+                    params.set(`col${index}`, q);
+                }
+            });
+
+            window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+        }
+
+        function loadFromURLParams() {
+            const params = new URLSearchParams(window.location.search);
+
+            const searchQuery = params.get('q');
+            if (searchQuery) {
+                document.getElementById('searchInput').value = searchQuery;
+                document.title = `${searchQuery} - Paper Table`;
+                performSearch();
+            }
+
+            questions = [];
+            const headerRow = document.getElementById('headerRow');
+            headerRow.innerHTML = '<th>Paper</th><th class="add-column-btn" onclick="addColumn()">+</th>';
+
+            for (let i = 0; params.has(`col${i}`); i++) {
+                questions.push(params.get(`col${i}`));
+            }
+
+            if (questions.length === 0) {
+                questions = ['Can you give a one sentence TL;DR?'];
+            }
+
+            updateURLParams();
+            initializeDefaultColumns();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFromURLParams);
+
+        function handleRowDragStart(e) {
+            draggedRow = e.target.closest('tr');
+            if (!draggedRow || draggedRow.classList.contains('load-more-row')) {
+                e.preventDefault();
+                return;
+            }
+            draggedRow.classList.add('dragging');
+            e.stopPropagation();
+            e.dataTransfer.setDragImage(emptyDragImage, 0, 0);
+            e.dataTransfer.setData('text/plain', '');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleRowDragOver(e) {
+            e.preventDefault();
+            const tr = e.target.closest('tr');
+
+            if (!tr || tr === draggedRow || tr.classList.contains('load-more-row')) {
+                return;
+            }
+
+            const tbody = document.getElementById('tableBody');
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            const fromIndex = rows.indexOf(draggedRow);
+            const toIndex = rows.indexOf(tr);
+
+            if (fromIndex !== -1 && toIndex !== -1) {
+                [currentPapers[fromIndex], currentPapers[toIndex]] =
+                    [currentPapers[toIndex], currentPapers[fromIndex]];
+
+                if (fromIndex < toIndex) {
+                    tr.parentNode.insertBefore(draggedRow, tr.nextSibling);
+                } else {
+                    tr.parentNode.insertBefore(draggedRow, tr);
+                }
+            }
+        }
+
+        function handleRowDrop(e) {
+            e.preventDefault();
+        }
+
+        function handleRowDragEnd() {
+            if (draggedRow) {
+                draggedRow.classList.remove('dragging');
+            }
+            draggedRow = null;
+            lastHoveredRow = null;
+        }
+
+        function handleDragStart(e) {
+            draggedHeader = this;
+            draggedHeader.classList.add('dragging');
+            e.stopPropagation();
+            e.dataTransfer.setDragImage(emptyDragImage, 0, 0);
+            e.dataTransfer.setData('text/plain', '');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const th = e.target.closest('th');
+
+            if (!th || th === draggedHeader || th.classList.contains('add-column-btn')) {
+                return;
+            }
+
+            const headerRow = document.getElementById('headerRow');
+            const headers = Array.from(headerRow.getElementsByTagName('th'));
+            const fromIndex = headers.indexOf(draggedHeader);
+            const toIndex = headers.indexOf(th);
+
+            if (fromIndex !== -1 && toIndex !== -1 && toIndex !== headers.length - 1) {
+                const temp = questions[fromIndex];
+                questions.splice(fromIndex, 1);
+                questions.splice(toIndex, 0, temp);
+
+                if (fromIndex < toIndex) {
+                    th.parentNode.insertBefore(draggedHeader, th.nextSibling);
+                } else {
+                    th.parentNode.insertBefore(draggedHeader, th);
+                }
+
+                const tbody = document.getElementById('tableBody');
+                const rows = tbody.getElementsByTagName('tr');
+                Array.from(rows).forEach(row => {
+                    const cells = Array.from(row.getElementsByTagName('td'));
+                    const fromCell = cells[fromIndex];
+                    const toCell = cells[toIndex];
+
+                    if (fromIndex < toIndex) {
+                        toCell.parentNode.insertBefore(fromCell, toCell.nextSibling);
+                    } else {
+                        toCell.parentNode.insertBefore(fromCell, toCell);
+                    }
+                });
+
+                updateURLParams();
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnd() {
+            if (draggedHeader) {
+                draggedHeader.classList.remove('dragging');
+            }
+            draggedHeader = null;
+        }
+
+        function toggleCell(e) {
+            const cell = e.currentTarget;
+            cell.classList.toggle('collapsed');
+            cell.classList.toggle('expanded');
+        }
+
+        function toggleAllCells() {
+            const cells = document.querySelectorAll('.selectable');
+            const anyCollapsed = Array.from(cells).some(cell => cell.classList.contains('collapsed'));
+            
+            cells.forEach(cell => {
+                if (anyCollapsed) {
+                    cell.classList.remove('collapsed');
+                    cell.classList.add('expanded');
+                } else {
+                    cell.classList.remove('expanded');
+                    cell.classList.add('collapsed');
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

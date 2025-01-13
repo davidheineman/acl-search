@@ -111,3 +111,26 @@ def decompress_residuals(pids, doclens, offsets, bucket_weights, reversed_bit_ma
                         bucket_weights[bucket_weight_idx] + centroids[code * dim + output_dim_idx]
 
     return output
+
+
+def print_estimate_cost(prompt: list[str], model: str="gpt-4o", input_cost: float=5, output_cost: float=15, estimated_output_toks: int=None):
+    """
+    See: https://openai.com/api/pricing
+    """
+    from tiktoken import encoding_for_model
+    enc = encoding_for_model(model)
+
+    input_toks = 0
+    for p in prompt:
+        encoding = enc.encode(p)
+        input_toks += len(encoding)
+
+    input_cost  = (input_toks * (input_cost / 1_000_000))
+
+    # STRONG ASSUMPTION -- our output will be 
+    if estimated_output_toks is None: estimated_output_toks = input_toks
+    output_cost = (estimated_output_toks * (output_cost / 1_000_000)) 
+
+    cost = input_cost + output_cost
+
+    print(f'Cost: ${cost:.4f} on "{model}" for {input_toks} input toks + {estimated_output_toks} output toks.')

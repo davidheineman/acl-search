@@ -1,18 +1,26 @@
-import os, math, re
+import os, math, re, requests, io, time
 from typing import List, Optional, Union
 
-from flask import Flask, abort, request, render_template
+from flask import Flask, abort, request, render_template, jsonify
 from functools import lru_cache
 
 from constants import INDEX_PATH, VENUES
 
 from search import ColBERT
 from db import create_database, query_paper_metadata
-from utils import download_index_from_hf
+from utils import download_index_from_hf, print_estimate_cost
+
+import PyPDF2
+from openai import OpenAI
 
 PORT = int(os.getenv("PORT", 8080))
 app = Flask(__name__)
 
+# Load OpenAI API key
+if os.path.exists('.openai-api-key'):
+    with open('.openai-api-key', 'r') as f:
+        api_key = f.read().strip()
+    client = OpenAI(api_key=api_key)
 
 @lru_cache(maxsize=1000000)
 def api_search_query(query):
@@ -92,6 +100,63 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/table', methods=['POST', 'GET'])
+def table():
+    return render_template('table.html')
+
+
+@lru_cache(maxsize=1000)
+def get_pdf_text(pdf_url: str) -> str:
+    """Cache and retrieve PDF text content."""
+    response = requests.get(pdf_url)
+    pdf_file = io.BytesIO(response.content)
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    return " ".join(page.extract_text() for page in pdf_reader.pages)
+
+
+@app.route('/api/llm', methods=['POST'])
+def query_llm():
+    data = request.json
+    title = data['title']
+    abstract = data['abstract'] 
+    question = data['question']
+    pdf_url = data['pdf_url'] if 'pdf_url' in data else None
+
+    try:
+        print(f'Started a new query!')
+
+        start_time = time.time()
+        pdf_text = get_pdf_text(pdf_url)
+        print(f"PDF text extraction took {time.time() - start_time:.2f} seconds")
+
+        prompt = f"""Paper Title: {title}
+Abstract: {abstract}
+Paper Text: {pdf_text}
+Question: {question}
+Please provide a concise answer."""
+
+        print_estimate_cost(prompt, model='gpt-4o-mini', input_cost=0.15, output_cost=0.6, estimated_output_toks=100)
+        
+        start_llm_time = time.time()
+        response = client.chat.completions.create(
+            model="gpt-4o-mini", 
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant analyzing academic papers. Please only respond with the direct answer (e.g., Yes, No) and no explanation or additional details unless it is absolutely necessary. Please respond with a phrase instead of a full sentence when possible. If the question does not apply, simply reply 'N/A'."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=150,
+            temperature=0.7
+        )
+        print(f"LLM inference took {time.time() - start_llm_time:.2f} seconds")
+        
+        answer = response.choices[0].message.content.strip()
+        return jsonify({'answer': answer})
+        
+    except Exception as e:
+        print(f"Error processing request: {str(e)}")
+        return jsonify({'error': 'Failed to process request'}), 500
+
+
 if __name__ == "__main__":
     """
     Example usage:
@@ -105,4 +170,8 @@ if __name__ == "__main__":
     colbert = ColBERT(index_path=INDEX_PATH)
     print(colbert.search('text simplificaiton'))
     print(api_search_query("text simplification")['topk'][:5])
-    app.run("0.0.0.0", PORT)
+    
+    # Watch web dirs for changes
+    extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
+
+    app.run("0.0.0.0", PORT, debug=True, extra_files=extra_files)

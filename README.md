@@ -13,7 +13,11 @@ Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/
 git clone https://github.com/davidheineman/acl-search
 pip install -r requirements.txt 
 python src/server.py # (this will download a pre-built index!)
+```
 
+**Common fixes:**
+
+```sh
 # getting pip errors? (install sentencepiece deps)
 sudo apt-get update
 sudo apt-get install -y pkg-config libsentencepiece-dev
@@ -24,6 +28,9 @@ cp ./src/extras/segmented_maxsim.cpp $INSTALL_PATH/site-packages/colbert/modelin
 cp ./src/extras/decompress_residuals.cpp $INSTALL_PATH/site-packages/colbert/search/decompress_residuals.cpp
 cp ./src/extras/filter_pids.cpp $INSTALL_PATH/site-packages/colbert/search/filter_pids.cpp
 cp ./src/extras/segmented_lookup.cpp $INSTALL_PATH/site-packages/colbert/search/segmented_lookup.cpp
+
+# want to use the paper table?
+echo -e "[OPENAI_API_KEY]" > .openai-api-key
 ```
 
 ## More Features
@@ -104,9 +111,9 @@ To see an example of search, visit:
 
 - To generate favicon:
     cd src/static
-    inkscape favicon.svg --export-type=png --export-background-opacity=0 --export-filename=favicon.png
-    convert favicon.png -resize 256x256 favicon.ico
-    rm favicon.png
+    inkscape table.svg --export-type=png --export-background-opacity=0 --export-filename=table.png
+    convert table.png -resize 256x256 -fill red -colorize 100% table.ico
+    rm table.png
 
 - TODO:
     - On UI

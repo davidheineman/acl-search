@@ -16,3 +16,7 @@ openreview-py
 bibtexparser
 tqdm
 gitpython
+
+# paper table
+tiktoken
+openai

@@ -15,3 +15,5 @@ acl_data
 data/
 *.log
 load_test.py
+.openai-api-key
+pyproject.toml
