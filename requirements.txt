@@ -10,6 +10,7 @@ transformers==4.47.1 # 4.80.0 breaks w/ colbert
 # db / server
 pysqlite3
 flask
+flask_cors
 gunicorn
 
 # scraping
