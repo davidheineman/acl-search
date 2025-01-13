@@ -3,20 +3,24 @@ from typing import List, Optional, Union
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
+do_init_backend = "--no-backend" not in sys.argv
 
 from flask import Flask, abort, request, render_template, jsonify
 from functools import lru_cache
-
-from constants import INDEX_PATH, VENUES
-from search import ColBERT
-from db import create_database, query_paper_metadata
-from utils import download_index_from_hf
+from flask_cors import CORS
 
 import PyPDF2
 from openai import OpenAI
 
+if do_init_backend:
+    from constants import INDEX_PATH, VENUES
+    from search import ColBERT
+    from db import create_database, query_paper_metadata
+    from utils import download_index_from_hf
+
 PORT = int(os.getenv("PORT", 8080))
 app = Flask(__name__)
+CORS(app)
 
 @lru_cache(maxsize=1000000)
 def api_search_query(query):
@@ -84,6 +88,15 @@ def query():
     server_response = server_response[:K]
 
     return server_response
+
+
+@app.route('/ping', methods=['HEAD', 'OPTIONS'])
+def ping():
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+    else:
+        response = ('', 200)
+    return response
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -173,9 +186,11 @@ if __name__ == "__main__":
     """
     Example usage:
     python server.py
+    python server.py --no-init
     http://localhost:8080/api/colbert?query=Information retrevial with BERT
     http://localhost:8080/api/search?query=Information retrevial with BERT
     """
-    initalize_backend()
+    if do_init_backend:
+        initalize_backend()
     extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
     app.run("0.0.0.0", PORT, debug=False, extra_files=extra_files)

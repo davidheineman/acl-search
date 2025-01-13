@@ -237,7 +237,22 @@
 
         async function queryLLM(paper, question) {
             try {
-                const response = await fetch('/api/llm', {
+                // Try to use a local service to query the LLM, if available
+                let baseUrl = 'http://localhost:4305';
+                
+                try {
+                    const pingResponse = await fetch(`${baseUrl}/ping`, { 
+                        method: 'HEAD',
+                        credentials: 'omit'
+                    });
+                    if (!pingResponse.ok) {
+                        throw new Error('localhost:4305 not available');
+                    }
+                } catch (e) {
+                    baseUrl = '';
+                }
+
+                const response = await fetch(`${baseUrl}/api/llm`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -251,7 +266,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('API request failed');
+                    throw new Error('OpenAI API request failed, is the local service running?');
                 }
 
                 const data = await response.json();

@@ -28,9 +28,6 @@ cp ./src/extras/segmented_maxsim.cpp $INSTALL_PATH/site-packages/colbert/modelin
 cp ./src/extras/decompress_residuals.cpp $INSTALL_PATH/site-packages/colbert/search/decompress_residuals.cpp
 cp ./src/extras/filter_pids.cpp $INSTALL_PATH/site-packages/colbert/search/filter_pids.cpp
 cp ./src/extras/segmented_lookup.cpp $INSTALL_PATH/site-packages/colbert/search/segmented_lookup.cpp
-
-# want to use the paper table?
-echo -e "[OPENAI_API_KEY]" > .openai-api-key
 ```
 
 ## More Features
@@ -100,6 +97,25 @@ docker run -it -e HF_TOKEN=$HF_TOKEN acl-search # (Optional) test it out!
 beaker image delete davidh/acl-search
 beaker image create --name acl-search acl-search
 beaker experiment create src/scrape/beaker/beaker-conf.yml
+```
+
+**Paper Table**
+```sh
+# add OpenAI API key
+echo -e "[OPENAI_API_KEY]" > .openai-api-key
+
+# Run paper table as a local service
+pm2 start paper-table.config.js
+pm2 logs paper-table-backend --lines 10
+
+pm2 startup # To have it run on startup
+pm2 save
+
+# To shut down the server + flush logs
+pm2 stop paper-table-backend && pm2 flush paper-table-backend
+
+# To restart
+pm2 stop paper-table-backend && pm2 flush paper-table-backend && pm2 start paper-table.config.js
 ```
 
 ## Example notebooks
