@@ -4,7 +4,8 @@ torch==1.13.1
 colbert-ir[torch,faiss-cpu]==0.2.14 # faiss-gpu
 numpy<2
 faiss-cpu
-huggingface_hub
+huggingface_hub==0.27.0
+transformers==4.47.1 # 4.80.0 breaks w/ colbert
 
 # db / server
 pysqlite3

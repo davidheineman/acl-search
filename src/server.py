@@ -1,12 +1,12 @@
-import os, math, re, requests, io, time
+import os, math, re, requests, io, time, sys
 from typing import List, Optional, Union
-
-import sys
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).parent))
 
 from flask import Flask, abort, request, render_template, jsonify
 from functools import lru_cache
+from threading import local
 
 from constants import INDEX_PATH, VENUES
 from search import ColBERT
@@ -16,10 +16,8 @@ from utils import download_index_from_hf, print_estimate_cost
 import PyPDF2
 from openai import OpenAI
 
-from threading import local
-thread_local = local()
-
 PORT = int(os.getenv("PORT", 8080))
+thread_local = local()
 app = Flask(__name__)
 colbert = None
 _is_initialized = False
@@ -175,8 +173,6 @@ def init_app():
         create_database()
         colbert = ColBERT(index_path=INDEX_PATH)
         _is_initialized = True
-        
-        # Remove client initialization from here since we're using thread-local storage
 
 
 @app.before_request
