@@ -60,7 +60,7 @@ python src/index.py
 **Deploy Web Server**
 ```sh
 # Start an API endpoint
-gunicorn -w 4 -b 0.0.0.0:8080 server:app
+gunicorn -w 1 --threads 100 --worker-class gthread -b 0.0.0.0:8080 src.server:app
 
 # Then visit:
 # http://localhost:8080
