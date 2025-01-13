@@ -6,21 +6,17 @@ sys.path.append(str(Path(__file__).parent))
 
 from flask import Flask, abort, request, render_template, jsonify
 from functools import lru_cache
-from threading import local
 
 from constants import INDEX_PATH, VENUES
 from search import ColBERT
 from db import create_database, query_paper_metadata
-from utils import download_index_from_hf, print_estimate_cost
+from utils import download_index_from_hf
 
 import PyPDF2
 from openai import OpenAI
 
 PORT = int(os.getenv("PORT", 8080))
-thread_local = local()
 app = Flask(__name__)
-colbert = None
-_is_initialized = False
 
 @lru_cache(maxsize=1000000)
 def api_search_query(query):
@@ -90,11 +86,6 @@ def query():
     return server_response
 
 
-# @app.route('/search', methods=['POST', 'GET'])
-# def search_web():
-#     return render_template('public/results.html', query=query, year=year, results=results)
-    
-
 @app.route('/', methods=['POST', 'GET'])
 def index():
     return render_template('index.html')
@@ -115,18 +106,19 @@ def get_pdf_text(pdf_url: str) -> str:
 
 
 def get_openai_client():
-    if not hasattr(thread_local, 'client'):
-        if os.path.exists('.openai-api-key'):
-            with open('.openai-api-key', 'r') as f:
-                api_key = f.read().strip()
-            thread_local.client = OpenAI(api_key=api_key)
-    return thread_local.client
+    if os.path.exists('.openai-api-key'):
+        with open('.openai-api-key', 'r') as f:
+            api_key = f.read().strip()
+        return OpenAI(api_key=api_key)
+    return None
 
 
 @app.route('/api/llm', methods=['POST'])
 def query_llm():
     print(f'Started a new query!')
     client = get_openai_client()
+    if client is None:
+        return jsonify({'error': 'No OpenAI API key'}), 500
     data = request.json
     title = data['title']
     abstract = data['abstract'] 
@@ -166,20 +158,6 @@ Please provide a concise answer."""
         return jsonify({'error': 'Failed to process request'}), 500
 
 
-def init_app():
-    global colbert, _is_initialized
-    if not _is_initialized:
-        download_index_from_hf()
-        create_database()
-        colbert = ColBERT(index_path=INDEX_PATH)
-        _is_initialized = True
-
-
-@app.before_request
-def before_request():
-    init_app()
-
-
 if __name__ == "__main__":
     """
     Example usage:
@@ -187,9 +165,12 @@ if __name__ == "__main__":
     http://localhost:8080/api/colbert?query=Information retrevial with BERT
     http://localhost:8080/api/search?query=Information retrevial with BERT
     """
-    init_app()
-
-    # Watch web dirs for changes
+    download_index_from_hf()
+    create_database()
+    global colbert
+    colbert = ColBERT(index_path=INDEX_PATH)
+    print(colbert.search('text simplificaiton'))
+    print(api_search_query("text simplification")['topk'][:5])
     extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
 
     app.run("0.0.0.0", PORT, debug=True, extra_files=extra_files)
