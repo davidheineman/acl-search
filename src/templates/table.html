@@ -21,6 +21,7 @@
                     <h2 class="mb-0 me-1" style="min-width: 180px;">paper table</h2>
                     <input type="text" id="searchInput" class="form-control" placeholder="Search papers...">
                     <button class="btn btn-primary ms-2" onclick="performSearch()">search</button>
+                    <button class="btn btn-secondary ms-2" onclick="exportToCSV()">.csv</button>
                     <button class="btn btn-secondary btn-light ms-2" onclick="toggleAllCells()">➕</button>
                 </div>
             </div>
@@ -134,7 +135,9 @@
                                 queryLLM(paper, newQuestion)
                                     .then(answer => {
                                         const innerDiv = document.createElement('div');
-                                        innerDiv.textContent = answer;
+                                        // Check if the answer contains a URL pattern
+                                        const urlPattern = /(https?:\/\/[^\s]+)/g;
+                                        innerDiv.innerHTML = answer.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
                                         cell.innerHTML = ''; // Clear the spinner
                                         cell.appendChild(innerDiv);
                                         cell.classList.add('selectable', 'collapsed');
@@ -391,7 +394,9 @@
                             queryLLM(paper, question)
                                 .then(answer => {
                                     const innerDiv = document.createElement('div');
-                                    innerDiv.textContent = answer;
+                                    // Check if the answer contains a URL pattern
+                                    const urlPattern = /(https?:\/\/[^\s]+)/g;
+                                    innerDiv.innerHTML = answer.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
                                     cell.innerHTML = ''; // Clear the spinner
                                     cell.appendChild(innerDiv);
                                     cell.classList.add('selectable', 'collapsed');
@@ -597,6 +602,63 @@
                     cell.classList.add('collapsed');
                 }
             });
+        }
+
+        function exportToCSV() {
+            // Get search query for filename
+            const searchQuery = document.getElementById('searchInput').value.trim();
+            const filename = searchQuery ? 
+                `paper_table_${searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '_')}.csv` : 
+                'paper_table_export.csv';
+
+            // Create CSV header
+            let csvContent = ['Title,Authors,Year,Venue'];
+            
+            // Add question columns
+            questions.forEach(question => {
+                if (question.trim()) {
+                    csvContent[0] += ',"' + question.replace(/"/g, '""') + '"';
+                }
+            });
+            csvContent[0] += '\n';
+
+            // Add data rows
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const titleCard = row.querySelector('.card-paper-table');
+                const title = titleCard.querySelector('.card-title a').textContent;
+                const authors = titleCard.querySelector('.text-light-authors').textContent;
+                const metadata = titleCard.querySelector('.paper-metadata strong').textContent.split('/');
+                const year = metadata[0].trim();
+                const venue = metadata[1].trim();
+
+                // Get answers from each column
+                const answers = Array.from(row.querySelectorAll('td'))
+                    .slice(1, -1) // Skip first (title) and last (empty) columns
+                    .map(cell => cell.textContent.trim());
+
+                // Combine all fields, properly escaped
+                const rowData = [
+                    `"${title.replace(/"/g, '""')}"`,
+                    `"${authors.replace(/"/g, '""')}"`,
+                    year,
+                    `"${venue}"`,
+                    ...answers.map(answer => `"${answer.replace(/"/g, '""')}"`)
+                ].join(',');
+
+                csvContent.push(rowData + '\n');
+            });
+
+            // Create and trigger download
+            const blob = new Blob([csvContent.join('')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 
