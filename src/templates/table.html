@@ -620,7 +620,7 @@
             
             // Add question columns
             questions.forEach(question => {
-                if (question.trim()) {
+                if (question && question.trim()) {
                     csvContent[0] += ',"' + question.replace(/"/g, '""') + '"';
                 }
             });
@@ -629,28 +629,41 @@
             // Add data rows
             const rows = document.querySelectorAll('#tableBody tr');
             rows.forEach(row => {
-                const titleCard = row.querySelector('.card-paper-table');
-                const title = titleCard.querySelector('.card-title a').textContent;
-                const authors = titleCard.querySelector('.text-light-authors').textContent;
-                const metadata = titleCard.querySelector('.paper-metadata strong').textContent.split('/');
-                const year = metadata[0].trim();
-                const venue = metadata[1].trim();
+                try {
+                    const titleCard = row.querySelector('.card-paper-table');
+                    if (!titleCard) return;
 
-                // Get answers from each column
-                const answers = Array.from(row.querySelectorAll('td'))
-                    .slice(1, -1) // Skip first (title) and last (empty) columns
-                    .map(cell => cell.textContent.trim());
+                    const titleElement = titleCard.querySelector('.card-title a');
+                    const authorsElement = titleCard.querySelector('.text-light-authors');
+                    const metadataElement = titleCard.querySelector('.paper-metadata strong');
 
-                // Combine all fields, properly escaped
-                const rowData = [
-                    `"${title.replace(/"/g, '""')}"`,
-                    `"${authors.replace(/"/g, '""')}"`,
-                    year,
-                    `"${venue}"`,
-                    ...answers.map(answer => `"${answer.replace(/"/g, '""')}"`)
-                ].join(',');
+                    if (!titleElement || !authorsElement || !metadataElement) return;
 
-                csvContent.push(rowData + '\n');
+                    const title = titleElement.textContent || '';
+                    const authors = authorsElement.textContent || '';
+                    const metadata = (metadataElement.textContent || '').split('/');
+                    const year = metadata[0] ? metadata[0].trim() : '';
+                    const venue = metadata[1] ? metadata[1].trim() : '';
+
+                    // Get answers from each column
+                    const answers = Array.from(row.querySelectorAll('td'))
+                        .slice(1, -1) // Skip first (title) and last (empty) columns
+                        .map(cell => (cell.textContent || '').trim());
+
+                    // Combine all fields, properly escaped
+                    const rowData = [
+                        `"${title.replace(/"/g, '""')}"`,
+                        `"${authors.replace(/"/g, '""')}"`,
+                        year,
+                        `"${venue}"`,
+                        ...answers.map(answer => `"${answer.replace(/"/g, '""')}"`)
+                    ].join(',');
+
+                    csvContent.push(rowData + '\n');
+                } catch (error) {
+                    console.error('Error processing row for CSV:', error);
+                    // Continue with next row
+                }
             });
 
             // Create and trigger download
