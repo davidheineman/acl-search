@@ -65,7 +65,11 @@
         const PAPERS_PER_PAGE = 10;
 
         const emptyDragImage = document.createElement('div');
-        emptyDragImage.style.display = 'none';
+        emptyDragImage.style.width = '1px';
+        emptyDragImage.style.height = '1px';
+        emptyDragImage.style.position = 'absolute';
+        emptyDragImage.style.left = '-9999px';
+        emptyDragImage.style.opacity = '0';
         document.body.appendChild(emptyDragImage);
 
         let draggedHeader = null;
