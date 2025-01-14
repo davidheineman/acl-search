@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
 do_init_backend = "--no-backend" not in sys.argv
+do_debug = "--debug" in sys.argv
 
 from flask import Flask, abort, request, render_template, jsonify
 from functools import lru_cache
@@ -193,4 +194,4 @@ if __name__ == "__main__":
     if do_init_backend:
         initalize_backend()
     extra_files = [os.path.join(dirname, filename) for dirname, _, files in os.walk('templates') for filename in files]
-    app.run("0.0.0.0", PORT, debug=False, extra_files=extra_files)
+    app.run("0.0.0.0", PORT, debug=do_debug, extra_files=extra_files)
