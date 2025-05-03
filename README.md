@@ -83,11 +83,17 @@ fly scale vm shared-cpu-2x # scale up cpu!
 fly scale memory 4096 # scale up memory!
 ```
 
-**Update Index on HF**
+**Update Index on Locally**
 ```sh
 # Download a fresh set of papers, index and push to hf:
 chmod +x src/scrape/beaker/index.sh
 ./src/scrape/beaker/index.sh
+```
+
+**Update Index on Docker**
+```sh
+# Make sure your OpenReview key is added
+echo -e "[email]\n[password]" > .openreview
 
 # Build and deploy container for auto-updating:
 docker build -t acl-search -f src/scrape/beaker/Dockerfile .
