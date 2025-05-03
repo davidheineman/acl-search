@@ -154,8 +154,10 @@ def preprocess_openreview(openreview_path):
                 bibtex = conf_entry['content'].get('_bibtex', '') # some failures
                 if bibtex != '':
                     bibkey = bibtex.split('{')[1].split(',')[0].replace('\n', '')
-                # else:
-                #     raise ValueError(conf_entry)
+                else:
+                    # raise ValueError(conf_entry)
+                    bibkey = None
+                    print(f'BibTeX is empty, could not parse Bibkey.')
 
                 venue = conf_entry['content'].get('venue', 'Submitted')
 

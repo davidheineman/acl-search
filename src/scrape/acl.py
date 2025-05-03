@@ -162,7 +162,8 @@ def get_venue_type(year: int, url: str, venueid: str, title: str):
         elif 'findings' in venueid: _type = 'findings'
         elif 'main' in venueid or 'long' in venueid: _type = 'main'
         else:
-            raise RuntimeError(f'Could not parse: {venueid}')
+            print(f'Could not parse: {venueid}. Defaulting to workshop...')
+            _type = 'workshop'
 
     else: # parse using venueid
         venueid = venueid.lower()
