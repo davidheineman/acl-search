@@ -19,12 +19,12 @@
                     <div class="mb-4">
                         <h1 class="mb-3">papers</h1>
                         <div class="range-label">
-                            <span id="min-value">2020</span> - <span id="max-value">2024</span>
+                            <span id="min-value">2020</span> - <span id="max-value">2025</span>
                         </div>
 
                         <div class="range-container">
-                            <input type="range" id="yearRangeMin" min="2010" max="2024" step="1" value="2020">
-                            <input type="range" id="yearRangeMax" min="2010" max="2024" step="1" value="2024">
+                            <input type="range" id="yearRangeMin" min="2010" max="2025" step="1" value="2020">
+                            <input type="range" id="yearRangeMax" min="2010" max="2025" step="1" value="2025">
                             <div class="slider-track"></div>
                             <div class="slider-range" id="sliderRange"></div>
                         </div>
@@ -142,8 +142,8 @@
             const minValue = parseInt(yearRangeMin.value);
             const maxValue = parseInt(yearRangeMax.value);
 
-            const percent1 = ((minValue - 2010) / (2024 - 2010)) * 100;
-            const percent2 = ((maxValue - 2010) / (2024 - 2010)) * 100;
+            const percent1 = ((minValue - 2010) / (2025 - 2010)) * 100;
+            const percent2 = ((maxValue - 2010) / (2025 - 2010)) * 100;
 
             sliderRange.style.left = percent1 + '%';
             sliderRange.style.width = (percent2 - percent1) + '%';

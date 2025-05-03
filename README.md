@@ -12,7 +12,7 @@ Use ColBERT as a search engine for the [ACL Anthology](https://aclanthology.org/
 # (optional): conda install -y -n aclsearch python=3.10
 git clone https://github.com/davidheineman/acl-search
 pip install -r requirements.txt 
-python src/server.py # (this will download a pre-built index!)
+python src/server.py --debug # (this will download a pre-built index!)
 ```
 
 **Common fixes:**

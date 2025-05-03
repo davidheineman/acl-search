@@ -301,7 +301,7 @@
                 </td></tr>`;
                 loadMoreRow.style.display = 'none';
 
-                const response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}&venue_type=short&venue_type=main&venue_type=colm&venue_type=oral&venue_type=spotlight&venue_type=poster&start_year=2020&end_year=2024`);
+                const response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}&venue_type=short&venue_type=main&venue_type=colm&venue_type=oral&venue_type=spotlight&venue_type=poster&start_year=2020&end_year=2025`);
                 if (!response.ok) {
                     throw new Error('Search request failed');
                 }
