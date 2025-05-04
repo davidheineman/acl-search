@@ -2,6 +2,7 @@
 
 name: Fly
 on:
+  workflow_dispatch:
   schedule:
     - cron: '20 4 * * 0' # Build once a week
   push:

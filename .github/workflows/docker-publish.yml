@@ -3,6 +3,7 @@ name: Docker
 # Deploy to ghcr.io/davidheineman/acl-search:main
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '20 4 * * 0' # Build once a week
   push:
